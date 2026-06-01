@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "name": "Müller",
+    "unternehmen": "Müller GmbH",
+    "umsatz_eur": 55000,
+    "kreditkarte": "4532-1111-2222-3333",
+    "geheime_notizen": "Der Kunde ist stark verschuldet. Mahnverfahren läuft."
+  },
+  {
+    "id": 2,
+    "name": "Schmidt",
+    "unternehmen": "Tech Startup Berlin",
+    "umsatz_eur": 120000,
+    "kreditkarte": "4532-9999-8888-7777",
+    "geheime_notizen": "Steht kurz vor einer Übernahme. Umsatzpotenzial hoch."
+  },
+  {
+    "id": 3,
+    "name": "Meier",
+    "unternehmen": "Meier Logistics",
+    "umsatz_eur": 1500,
+    "kreditkarte": "4532-4444-5555-6666",
+    "geheime_notizen": "Stammkunde, aber sehr unzuverlässig bei Zahlungen."
+  }
+]

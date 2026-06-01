@@ -1,0 +1,27 @@
+# Dependency directories
+node_modules/
+agentbox-fullstack/node_modules/
+
+# Environment files
+.env
+agentbox-fullstack/.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE/Editor files
+.vscode/
+.idea/
+
+# Local logs
+*.log
+npm-debug.log*
+
+# Dev / Temporary scripts
+patch.py
+test.js
+code.html
+agentbox-fullstack/append_backend.py
+agentbox-fullstack/patch_*.py
+agentbox-fullstack/test_*.js

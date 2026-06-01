@@ -1,0 +1,57 @@
+[
+  {
+    "id": 1,
+    "name": "LieferMax GmbH",
+    "material": "Aluminium-Rohre",
+    "preis_pro_tonne_eur": 2400,
+    "lieferzeit_tage": 14,
+    "mindestmenge_tonnen": 10,
+    "bewertung": 4.2,
+    "angebot_gesamt_eur": 72000,
+    "notizen": "Zuverlässiger Stammlieferant. Keine Ausfälle in 3 Jahren."
+  },
+  {
+    "id": 2,
+    "name": "Global Supply AG",
+    "material": "Aluminium-Rohre",
+    "preis_pro_tonne_eur": 2100,
+    "lieferzeit_tage": 21,
+    "mindestmenge_tonnen": 50,
+    "bewertung": 3.8,
+    "angebot_gesamt_eur": 120000,
+    "notizen": "Günstigster Anbieter, aber lange Lieferzeiten und hohe Mindestmenge."
+  },
+  {
+    "id": 3,
+    "name": "SchnellStahl KG",
+    "material": "Aluminium-Rohre",
+    "preis_pro_tonne_eur": 2800,
+    "lieferzeit_tage": 5,
+    "mindestmenge_tonnen": 5,
+    "bewertung": 4.7,
+    "angebot_gesamt_eur": 42000,
+    "notizen": "Premium-Lieferant. Express-Lieferung, aber teuer."
+  },
+  {
+    "id": 4,
+    "name": "EastTrade Import",
+    "material": "Aluminium-Rohre",
+    "preis_pro_tonne_eur": 1800,
+    "lieferzeit_tage": 35,
+    "mindestmenge_tonnen": 100,
+    "bewertung": 2.9,
+    "angebot_gesamt_eur": 180000,
+    "notizen": "WARNUNG: Qualitätsprobleme in der Vergangenheit. Zoll-Risiko."
+  },
+  {
+    "id": 5,
+    "name": "MetallWerk Bayern",
+    "material": "Aluminium-Rohre",
+    "preis_pro_tonne_eur": 2550,
+    "lieferzeit_tage": 10,
+    "mindestmenge_tonnen": 15,
+    "bewertung": 4.5,
+    "angebot_gesamt_eur": 95000,
+    "notizen": "Solider Lieferant. ISO-zertifiziert. Verhandlungsspielraum vorhanden."
+  }
+]
