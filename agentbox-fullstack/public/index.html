@@ -597,11 +597,12 @@
                             <span id="tempRiskBadge" class="text-[8px] font-bold text-secondary-container px-1.5 py-0.5 rounded bg-secondary-container/10">STABIL</span>
                         </label>
                     </div>
-                    <input id="tempInput" oninput="updateParams()" class="w-full accent-primary-container bg-surface-container-high h-1 appearance-none cursor-pointer" type="range" min="0" max="100" value="20"/>
-                    <div class="flex justify-between text-[10px] font-code-sm text-secondary-container">
+                    <input id="tempInput" oninput="updateParams()" class="w-full accent-primary-container bg-surface-container-high h-1 appearance-none cursor-pointer" type="range" min="0" max="200" value="20"/>
+                    <div class="flex justify-between text-[9px] font-code-sm text-secondary-container">
                         <span>0.0 (Präzise)</span>
                         <span class="text-primary-container font-bold" id="tempValue">0.2</span>
-                        <span>1.0 (Kreativ)</span>
+                        <span>1.0 (Standard)</span>
+                        <span>2.0 (Drift-Risiko)</span>
                     </div>
                 </div>
             </div>
@@ -1399,9 +1400,12 @@ function updateParams() {
   
   const badge = $('tempRiskBadge');
   if (badge) {
-    if (S.temp > 0.7) {
+    if (S.temp >= 1.5) {
       badge.innerText = 'DRIFT-RISIKO';
       badge.className = 'text-[8px] font-bold text-error px-1.5 py-0.5 rounded bg-error/15 animate-pulse';
+    } else if (S.temp >= 1.0) {
+      badge.innerText = 'STANDARD';
+      badge.className = 'text-[8px] font-bold text-primary-container px-1.5 py-0.5 rounded bg-primary-container/10';
     } else {
       badge.innerText = 'STABIL';
       badge.className = 'text-[8px] font-bold text-secondary-container px-1.5 py-0.5 rounded bg-secondary-container/10';
@@ -1604,7 +1608,7 @@ function showGlossary(termKey, event) {
     },
     'temperature': {
       title: 'LLM Temperature (Temperatur)',
-      desc: 'Ein Parameter, der die Kreativität bzw. Zufälligkeit der Antworten eines LLMs steuert. Ein Wert nahe 0 führt zu deterministischen, vorsichtigen Antworten; Werte über 0.7 machen die Ausgabe kreativer, erhöhen aber das Risiko von Halluzinationen und Abweichungen (Reasoning Drift).',
+      desc: 'Ein Parameter, der die Kreativität bzw. Zufälligkeit der Antworten eines LLMs steuert. Ein Wert nahe 0 führt zu deterministischen, vorsichtigen Antworten. Der Standardwert gängiger Modelle liegt bei 1.0 (Standard/Kreativ). Werte deutlich über 1.2 (z. B. ab 1.5) erhöhen das Risiko von Halluzinationen und Abweichungen (Reasoning Drift) stark.',
       benefit: 'Erlaubt die Feinabstimmung zwischen präziser Einhaltung von Regeln (niedrige Temperatur) und kreativer Varianz (hohe Temperatur).'
     },
     'pddl': {
@@ -2670,6 +2674,15 @@ function startLabSimulation() {
     // Evaluate Decision
     const isSafe = (llmResult.decision === "ROUTER");
 
+    // Simulation Logic Variables
+    const isHallucinating = (parseFloat(S.temp) >= 1.5);
+    const contextDriftFired = sensorVal.toLowerCase().includes('newsletter') || sensorVal.toLowerCase().includes('disclaimer') || sensorVal.length > 250;
+    const promptHasSafety = (llmResult.score >= 60);
+    
+    const memoryShieldTriggered = contextDriftFired && S.activeNodes.memory;
+    const solverShieldTriggered = isHallucinating && S.activeNodes.planner;
+    const promptHasSafetyFinal = promptHasSafety && (!isHallucinating || S.activeNodes.planner) && (!contextDriftFired || S.activeNodes.memory);
+    const bypassHITL = userPrompt.includes('automatisch') || userPrompt.includes('direkt') || userPrompt.includes('sofort');
 
     // Decision Logic
     if (isSafe) {
@@ -2972,7 +2985,7 @@ function updateDriftFeedback() {
     title = 'Reasoning Drift (LLM-Temperatur)';
     color = '#90caf9'; // matching reasoning color #90caf9
     reason = `Die hohe LLM-Temperatur (${S.temp}) hat zu unvorhersehbarem Verhalten (Halluzination) geführt. Das Modell hat deine Sicherheitsregeln im Prompt ignoriert und den kritischen Datenstrom freigegeben.`;
-    solution = 'Senke die Modell-Temperatur in den Parametern auf einen stabilen Wert (≤0.5) für deterministische Entscheidungen.';
+    solution = 'Senke die Modell-Temperatur in den Parametern auf einen stabileren Wert (≤1.0 für kreativere Aufgaben oder ≤0.5 für deterministische Entscheidungen).';
   } else if (S.outcomeDrift === 'reasoning_bad_prompt') {
     driftType = 'reasoning';
     title = 'Reasoning Drift (Mangelhafter Prompt)';
@@ -3300,11 +3313,11 @@ function loadExperiment(expId) {
   if (expId === 'exp1') {
     // Ungeschützte KI
     S.activeNodes = { input:true, validator:true, memory:false, orchestrator:true, planner:false, router:true, hitl:false, logger:true };
-    S.temp = 1.0;
+    S.temp = 1.5;
     S.severity = 'danger';
     setToPreset('danger');
     loadExamplePrompt();
-    showTutorialSpotlight('#executeBtn', 'Experiment 1: Ungeschützte KI', 'Dieses Experiment zeigt, wie eine ungeschützte KI bei hoher Temperatur (1.0) halluziniert. Klicke auf <strong>&quot;Execute Lab&quot;</strong>, um zu sehen, wie die Bedrohung durchrutscht und das System crasht.', 'bottom', true);
+    showTutorialSpotlight('#executeBtn', 'Experiment 1: Ungeschützte KI', 'Dieses Experiment zeigt, wie eine ungeschützte KI bei hoher Temperatur (1.5) halluziniert. Klicke auf <strong>&quot;Execute Lab&quot;</strong>, um zu sehen, wie die Bedrohung durchrutscht und das System crasht.', 'bottom', true);
   } else if (expId === 'exp2') {
     // Human-in-the-Loop
     S.activeNodes = { input:true, validator:true, memory:false, orchestrator:true, planner:false, router:true, hitl:true, logger:true };
@@ -3316,11 +3329,11 @@ function loadExperiment(expId) {
   } else if (expId === 'exp3') {
     // Symbolischer Planer
     S.activeNodes = { input:true, validator:true, memory:false, orchestrator:true, planner:true, router:true, hitl:true, logger:true };
-    S.temp = 1.0;
+    S.temp = 1.5;
     S.severity = 'danger';
     setToPreset('danger');
     loadExamplePrompt();
-    showTutorialSpotlight('#executeBtn', 'Experiment 3: Solver-Shield', 'Der symbolische Planer ist aktiv. Klicke auf <strong>&quot;Execute Lab&quot;</strong>. Trotz hoher LLM-Temperatur (1.0) und drohendem Drift fängt der PDDL-Planer den Fehler ab und rettet das System!', 'bottom', true);
+    showTutorialSpotlight('#executeBtn', 'Experiment 3: Solver-Shield', 'Der symbolische Planer ist aktiv. Klicke auf <strong>&quot;Execute Lab&quot;</strong>. Trotz hoher LLM-Temperatur (1.5) und drohendem Drift fängt der PDDL-Planer den Fehler ab und rettet das System!', 'bottom', true);
   } else if (expId === 'exp4') {
     // RAG-Gedächtnis
     S.activeNodes = { input:true, validator:true, memory:true, orchestrator:true, planner:false, router:true, hitl:true, logger:true };
