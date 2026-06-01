@@ -8,6 +8,5 @@
       "onAutoForward": "openBrowser"
     }
   },
-  "postCreateCommand": "cd agentbox-fullstack && npm install",
-  "postStartCommand": "cd agentbox-fullstack && npm start"
+  "postCreateCommand": "cd agentbox-fullstack && npm install"
 }

@@ -11,7 +11,8 @@ agentbox-fullstack/.env
 Thumbs.db
 
 # IDE/Editor files
-.vscode/
+.vscode/*
+!.vscode/tasks.json
 .idea/
 
 # Local logs
