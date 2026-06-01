@@ -1,5 +1,7 @@
 # 🤖 AgentBox: Interactive AI Agent Security & Procurement Sandbox
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Thorlogy/ai-agentbox)
+
 Ein interaktives High-Density-Simulationslabor für **Agentic AI, Prompt Injection, Routing & Human-in-the-Loop (HITL)**. 
 
 Dieses Tool wurde entwickelt, um Entwicklern, Systemarchitekten und Workshop-Teilnehmern spielerisch zu vermitteln, wie man autonome KI-Agenten steuert, absichert und mit intelligenten Leitplanken (Guardrails) versieht.
