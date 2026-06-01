@@ -2323,7 +2323,7 @@ function showScoreCard(result) {
 
   // Criteria
   $('scoreCriteria').innerHTML = result.criteria.map(c =>
-    `<div class="${c.ok ? 'text-primary-container' : 'text-error'}">${c.ok ? '✓' : '✗'} ${c.label} <span class="text-on-surface-variant">(${c.pts})</span></div>`
+    `<div class="${c.ok ? 'text-primary-container' : 'text-error'}">${c.ok ? '✓' : '✗'} ${escapeHtml(c.label)} <span class="text-on-surface-variant">(${c.pts})</span></div>`
   ).join('');
 
   // Tips
@@ -2942,7 +2942,7 @@ async function finishSimulation(prompt, result) {
             });
             const execData = await execRes.json();
             if (execData.error) {
-                outBox.innerHTML = `<span class="text-error">[Fehler] ${execData.error}</span>`;
+                outBox.innerHTML = `<span class="text-error">[Fehler] ${escapeHtml(execData.error)}</span>`;
             } else {
                 outBox.innerHTML = `<span class="text-primary-container">${escapeHtml(execData.output || JSON.stringify(execData))}</span>`;
             }
