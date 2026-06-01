@@ -369,6 +369,20 @@ ${systemPrompt || "No rules provided."}
 });
 
 
+app.get('/api/config', (req, res) => {
+    try {
+        const defaultProvider = process.env.LLM_PROVIDER || 'gemini';
+        const keysConfigured = !!(process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY || process.env.ANTHROPIC_API_KEY || process.env.DEEPSEEK_API_KEY);
+        res.json({
+            provider: defaultProvider,
+            anyKeyConfigured: keysConfigured
+        });
+    } catch (e) {
+        res.status(500).json({ error: "Fehler beim Laden der Konfiguration" });
+    }
+});
+
+
 app.get('/api/database/:name', (req, res) => {
     try {
         const name = req.params.name;
