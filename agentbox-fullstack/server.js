@@ -288,8 +288,10 @@ ${systemPrompt || "No rules provided."}
                 config: { systemInstruction: EXECUTE_SYSTEM_PROMPT, tools: geminiTools }
             });
 
+            let toolLogs = "";
             if (response.functionCalls && response.functionCalls.length > 0) {
                 const call = response.functionCalls[0];
+                toolLogs += `[TOOL CALL] Werkzeug aufgerufen: ${call.name}(${JSON.stringify(call.args)})\n`;
                 let functionResponse;
                 if (call.name === "search_customer_db") {
                     functionResponse = searchCustomerDb(JSON.stringify(call.args));
@@ -297,6 +299,7 @@ ${systemPrompt || "No rules provided."}
                     functionResponse = searchSupplierDb(JSON.stringify(call.args));
                 }
                 if (functionResponse) {
+                    toolLogs += `[TOOL RESP] Daten erhalten: ${functionResponse.substring(0, 120)}...\n\n`;
                     geminiMessages.push({ role: 'model', parts: [{ functionCall: call }] });
                     geminiMessages.push({
                         role: 'user',
@@ -316,7 +319,7 @@ ${systemPrompt || "No rules provided."}
                     });
                 }
             }
-            return res.json({ output: response.text });
+            return res.json({ output: toolLogs + response.text });
         }
 
         // OPENAI & DEEPSEEK
@@ -327,10 +330,12 @@ ${systemPrompt || "No rules provided."}
             tools: tools
         });
         
+        let toolLogs = "";
         let responseMessage = response.choices[0].message;
         if (responseMessage.tool_calls) {
             messages.push(responseMessage);
             for (const toolCall of responseMessage.tool_calls) {
+                toolLogs += `[TOOL CALL] Werkzeug aufgerufen: ${toolCall.function.name}(${toolCall.function.arguments})\n`;
                 let functionResponse;
                 if (toolCall.function.name === "search_customer_db") {
                     functionResponse = searchCustomerDb(toolCall.function.arguments);
@@ -338,6 +343,7 @@ ${systemPrompt || "No rules provided."}
                     functionResponse = searchSupplierDb(toolCall.function.arguments);
                 }
                 if (functionResponse) {
+                    toolLogs += `[TOOL RESP] Daten erhalten: ${functionResponse.substring(0, 120)}...\n\n`;
                     messages.push({
                         tool_call_id: toolCall.id,
                         role: "tool",
@@ -354,7 +360,7 @@ ${systemPrompt || "No rules provided."}
             responseMessage = response.choices[0].message;
         }
 
-        res.json({ output: responseMessage.content });
+        res.json({ output: toolLogs + responseMessage.content });
 
     } catch (error) {
         console.error("Error during execution:", error);
