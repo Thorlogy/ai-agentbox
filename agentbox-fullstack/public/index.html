@@ -1172,6 +1172,103 @@
         </div>
 
       </div>
+
+      <!-- Sektion C: Aktions-Taxonomie -->
+      <div class="bg-surface-container border border-outline-variant p-6 rounded mt-8">
+        <div class="flex items-center gap-3 border-b border-outline-variant pb-4 mb-6">
+          <span class="material-symbols-outlined text-primary text-3xl" aria-hidden="true">category</span>
+          <div>
+            <h2 class="text-lg font-headline-lg text-primary uppercase">Aktions-Taxonomie</h2>
+            <p class="text-[11px] text-on-surface-variant">Architektonische Klassifizierung von Agenten-Tools und deren Risikoklassen.</p>
+          </div>
+        </div>
+        
+        <p class="text-xs text-on-surface-variant leading-relaxed mb-6">
+          Eine präzise Klassifizierung von Aktionsarten leitet architektonische Entscheidungen: 
+          <strong>Welche Tools werden bereitgestellt, welche Berechtigungen werden durchgesetzt und welche Aktionen erfordern zwingend eine menschliche Überwachung (Human-in-the-Loop)?</strong>
+        </p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- 1. Kommunikativ -->
+          <div class="bg-surface-container-low border-t-2 border-[#c3f400] p-4 flex flex-col justify-between rounded">
+            <div>
+              <div class="text-[10px] font-label-caps text-[#c3f400] mb-1">1. Kommunikativ</div>
+              <h4 class="text-xs text-primary font-bold mb-1">Textgenerierung & Berichte</h4>
+              <p class="text-[11px] text-on-surface-variant leading-normal mb-3">NL-Generierung – Antworten, Fragen, Zusammenfassungen, Berichte. Die Standardausgabe von LLMs.</p>
+            </div>
+            <div class="text-[9px] font-code-sm text-on-surface-variant/80 border-t border-outline-variant/30 pt-2">
+              <span class="text-primary-container">Beispiel:</span> E-Mail verfassen<br>
+              <span class="text-error">Risiko:</span> Halluzinationen, Social Eng.
+            </div>
+          </div>
+
+          <!-- 2. Abruf -->
+          <div class="bg-surface-container-low border-t-2 border-[#00eefc] p-4 flex flex-col justify-between rounded">
+            <div>
+              <div class="text-[10px] font-label-caps text-[#00eefc] mb-1">2. Abruf (Retrieval)</div>
+              <h4 class="text-xs text-primary font-bold mb-1">Suche & DB-Abfragen</h4>
+              <p class="text-[11px] text-on-surface-variant leading-normal mb-3">Abfrage von Wissen: Websuche, Vektordatenbank, SQL. Erweitert den Wahrnehmungszugang.</p>
+            </div>
+            <div class="text-[9px] font-code-sm text-on-surface-variant/80 border-t border-outline-variant/30 pt-2">
+              <span class="text-[#00eefc]">Beispiel:</span> search_customer_db<br>
+              <span class="text-error">Risiko:</span> Datenleck (Data Leakage)
+            </div>
+          </div>
+
+          <!-- 3. Rechnerisch -->
+          <div class="bg-surface-container-low border-t-2 border-[#ffabf3] p-4 flex flex-col justify-between rounded">
+            <div>
+              <div class="text-[10px] font-label-caps text-[#ffabf3] mb-1">3. Rechnerisch</div>
+              <h4 class="text-xs text-primary font-bold mb-1">Mathematik & Code-Ausführung</h4>
+              <p class="text-[11px] text-on-surface-variant leading-normal mb-3">Codegenerierung und -ausführung, mathematisches Denken. Nutzt symbolische Präzision.</p>
+            </div>
+            <div class="text-[9px] font-code-sm text-on-surface-variant/80 border-t border-outline-variant/30 pt-2">
+              <span class="text-[#ffabf3]">Beispiel:</span> Budget-Kalkulation<br>
+              <span class="text-error">Risiko:</span> RCE (Schadcode-Ausführung)
+            </div>
+          </div>
+
+          <!-- 4. Transaktionell -->
+          <div class="bg-surface-container-low border-t-2 border-[#ffb4ab] p-4 flex flex-col justify-between rounded">
+            <div>
+              <div class="text-[10px] font-label-caps text-[#ffb4ab] mb-1">4. Transaktionell</div>
+              <h4 class="text-xs text-primary font-bold mb-1">API-Aufrufe & Datei-E/A</h4>
+              <p class="text-[11px] text-on-surface-variant leading-normal mb-3">API-Aufrufe, Formularübermittlung, Datei-I/O, Browser. Bewirkt Zustandsänderungen in der realen Welt.</p>
+            </div>
+            <div class="text-[9px] font-code-sm text-on-surface-variant/80 border-t border-outline-variant/30 pt-2">
+              <span class="text-error-container text-[#ffb4ab]">Beispiel:</span> search_supplier_db + buchen<br>
+              <span class="text-error">Risiko:</span> Fehlinvestition, Daten-Löschen
+            </div>
+          </div>
+
+          <!-- 5. Physisch -->
+          <div class="bg-surface-container-low border-t-2 border-[#8e9379] p-4 flex flex-col justify-between rounded">
+            <div>
+              <div class="text-[10px] font-label-caps text-[#8e9379] mb-1">5. Physisch</div>
+              <h4 class="text-xs text-primary font-bold mb-1">Motorsteuerbefehle</h4>
+              <p class="text-[11px] text-on-surface-variant leading-normal mb-3">Direkte Interaktion mit physischer Hardware, Aktuatoren, Robotern oder IoT-Geräten.</p>
+            </div>
+            <div class="text-[9px] font-code-sm text-on-surface-variant/80 border-t border-outline-variant/30 pt-2">
+              <span class="text-on-surface-variant">Beispiel:</span> Smarthome / IoT-Schloss<br>
+              <span class="text-error">Risiko:</span> Physische Hardwarebeschädigung
+            </div>
+          </div>
+
+          <!-- 6. Delegierung -->
+          <div class="bg-surface-container-low border-t-2 border-[#ffd7f5] p-4 flex flex-col justify-between rounded">
+            <div>
+              <div class="text-[10px] font-label-caps text-[#ffd7f5] mb-1">6. Delegierung</div>
+              <h4 class="text-xs text-primary font-bold mb-1">Sub-Agenten Steuerung</h4>
+              <p class="text-[11px] text-on-surface-variant leading-normal mb-3">Erstellen und Koordinieren von Unter-Agenten zur Verteilung komplexerer Sub-Aufgaben.</p>
+            </div>
+            <div class="text-[9px] font-code-sm text-on-surface-variant/80 border-t border-outline-variant/30 pt-2">
+              <span class="text-[#ffd7f5]">Beispiel:</span> Supervisor delegiert Task<br>
+              <span class="text-error">Risiko:</span> Kontrollverlust, Endlosschleifen
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
