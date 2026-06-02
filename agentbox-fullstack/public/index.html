@@ -198,9 +198,106 @@
                 min-height: 600px;
             }
         }
+
+        /* ─── BEGINNER MODE ─── */
+        body.beginner-mode #mode-switcher-tabs,
+        body.beginner-mode #experiments-section,
+        body.beginner-mode #params-section,
+        body.beginner-mode #permissions-block,
+        body.beginner-mode #scenario-selector,
+        body.beginner-mode .sidebar-section:has(#chk-validator),
+        body.beginner-mode .sidebar-section:has(#m1-icon),
+        body.beginner-mode #scoreCard,
+        body.beginner-mode #jsonViewer,
+        body.beginner-mode #drift-container,
+        body.beginner-mode #architecture-container,
+        body.beginner-mode #node-validator,
+        body.beginner-mode #node-memory,
+        body.beginner-mode #node-planner,
+        body.beginner-mode #node-hitl,
+        body.beginner-mode #node-logger,
+        body.beginner-mode #line-input-validator,
+        body.beginner-mode #line-validator-memory,
+        body.beginner-mode #line-validator-orchestrator,
+        body.beginner-mode #line-memory-orchestrator,
+        body.beginner-mode #line-orchestrator-planner,
+        body.beginner-mode #line-orchestrator-hitl,
+        body.beginner-mode #line-planner-router,
+        body.beginner-mode #line-planner-hitl,
+        body.beginner-mode #line-hitl-logger,
+        body.beginner-mode .advanced-only,
+        body.beginner-mode #btn-database-header,
+        body.beginner-mode #btn-onboarding-header,
+        body.beginner-mode #btn-tutorial-header,
+        body.beginner-mode #simspeed-block,
+        body.beginner-mode #lang-toggle-block,
+        body.beginner-mode .didactic-tip-advanced {
+            display: none !important;
+        }
+        body.beginner-mode #agentOutputBox { height: 200px !important; }
+        body.beginner-mode #reasoningBox { height: 120px !important; }
+        body.beginner-mode .state-inspector-header { display: none !important; }
+        body.beginner-mode #node-input { left: 80px !important; top: 180px !important; }
+        body.beginner-mode #node-orchestrator { left: 400px !important; top: 160px !important; }
+        body.beginner-mode #node-router { left: 720px !important; top: 180px !important; }
+        body.beginner-mode #beginner-loop-svg { display: block !important; }
+        #beginner-loop-svg { display: none; }
+        .mode-card {
+            background: rgba(28,27,28,.85);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid #444933;
+            transition: all 0.3s ease; cursor: pointer;
+        }
+        .mode-card:hover {
+            border-color: #c3f400;
+            box-shadow: 0 0 30px rgba(195,244,0,.15);
+            transform: translateY(-4px);
+        }
+        .beginner-only { display: none; }
+        body.beginner-mode .beginner-only { display: block !important; }
+        body.beginner-mode .beginner-only-flex { display: flex !important; }
+        .beginner-only-flex { display: none; }
     </style>
 </head>
 <body class="h-screen flex flex-col">
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- MODE SELECTION MODAL                                       -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="mode-select-modal" class="fixed inset-0 z-[80] flex items-center justify-center bg-black/90 backdrop-blur-md" style="display:none" role="dialog" aria-modal="true">
+  <div class="max-w-3xl w-full mx-4">
+    <div class="text-center mb-8">
+      <div class="flex items-center justify-center gap-3 mb-3">
+        <span class="font-headline-lg text-headline-lg text-primary uppercase tracking-tighter">FRAUNHOFER</span>
+        <div class="h-5 w-[1px] bg-outline-variant"></div>
+        <span class="font-headline-lg text-headline-lg text-primary-container uppercase tracking-tighter">AgentBox</span>
+      </div>
+      <p class="text-on-surface-variant text-[14px]">Wähle deinen Modus</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="mode-card p-8 rounded" onclick="selectAppMode('beginner')">
+        <div class="text-[40px] mb-4">🎓</div>
+        <h3 class="text-primary-container text-[20px] font-bold font-headline-lg mb-2">Einsteiger</h3>
+        <p class="text-on-surface-variant text-[13px] leading-relaxed mb-4">Was ist ein KI-Agent? Erlebe die Agent-Schleife (ReAct) anhand eines Einkaufsbeispiels.</p>
+        <div class="space-y-1.5 text-[11px] text-on-surface-variant/70">
+          <div class="flex items-center gap-2"><span class="text-primary-container">✓</span> Ein Use-Case (Einkaufsagent)</div>
+          <div class="flex items-center gap-2"><span class="text-primary-container">✓</span> Vereinfachte Oberfläche</div>
+          <div class="flex items-center gap-2"><span class="text-primary-container">✓</span> Fokus: LLM → Tool → Ergebnis</div>
+        </div>
+      </div>
+      <div class="mode-card p-8 rounded" onclick="selectAppMode('advanced')">
+        <div class="text-[40px] mb-4">🔬</div>
+        <h3 class="text-secondary-container text-[20px] font-bold font-headline-lg mb-2">Fortgeschritten</h3>
+        <p class="text-on-surface-variant text-[13px] leading-relaxed mb-4">Vollständiges Sicherheitslabor mit 6 Szenarien, Graph-Konfiguration und Drift-Analyse.</p>
+        <div class="space-y-1.5 text-[11px] text-on-surface-variant/70">
+          <div class="flex items-center gap-2"><span class="text-secondary-container">✓</span> 6 Szenarien (Mail, Doc, Ticket, Budget, Meeting, Einkauf)</div>
+          <div class="flex items-center gap-2"><span class="text-secondary-container">✓</span> Graph-Architektur konfigurierbar</div>
+          <div class="flex items-center gap-2"><span class="text-secondary-container">✓</span> Drift-Analyse & Prompt Engineering</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ═══════════════════════════════════════════════════════════ -->
 
@@ -382,24 +479,25 @@
     </div>
     
     <!-- Mode Switcher -->
-    <div class="flex items-center bg-surface-container border border-outline-variant p-0.5 rounded gap-0.5">
+    <div id="mode-switcher-tabs" class="flex items-center bg-surface-container border border-outline-variant p-0.5 rounded gap-0.5">
         <button id="mode-simulator" onclick="switchMode('simulator')" class="px-3 py-1 text-[10px] font-label-caps bg-primary-container text-on-primary-container tracking-wider transition-all">SIMULATOR</button>
         <button id="mode-drift" onclick="switchMode('drift')" class="px-3 py-1 text-[10px] font-label-caps text-on-surface-variant hover:text-primary tracking-wider transition-all">DRIFT-ANALYSE</button>
         <button id="mode-architecture" onclick="switchMode('architecture')" class="px-3 py-1 text-[10px] font-label-caps text-on-surface-variant hover:text-primary tracking-wider transition-all">ARCHITEKTUR PATTERNS</button>
     </div>
 
     <div class="flex items-center gap-3">
-        <button onclick="showDatabaseModal()" title="Mock-Datenbanken" class="material-symbols-outlined text-on-surface-variant hover:text-primary text-[20px] p-1 transition-colors" aria-label="Mock-Datenbanken">database</button>
+        <button id="btn-mode-switch" onclick="showModeSelector()" title="Modus wechseln" class="px-2.5 py-1 bg-surface-container-high border border-outline-variant text-[9px] font-label-caps text-primary-container tracking-wider flex items-center gap-1.5 rounded hover:border-primary-container transition-all cursor-pointer"><span class="material-symbols-outlined text-[14px]">swap_horiz</span><span id="mode-badge-text">🔬 Experte</span></button>
+        <button id="btn-database-header" onclick="showDatabaseModal()" title="Mock-Datenbanken" class="material-symbols-outlined text-on-surface-variant hover:text-primary text-[20px] p-1 transition-colors" aria-label="Mock-Datenbanken">database</button>
         <button onclick="showApiSetup()" title="API Setup" class="material-symbols-outlined text-on-surface-variant hover:text-primary text-[20px] p-1 transition-colors" aria-label="API Setup">settings</button>
-        <button onclick="showOnboarding()" title="Info" class="material-symbols-outlined text-on-surface-variant hover:text-primary text-[20px] p-1 transition-colors" aria-label="Info">info</button>
-        <button onclick="startTutorial()" title="Tutorial" class="material-symbols-outlined text-on-surface-variant hover:text-primary text-[20px] p-1 transition-colors" aria-label="Tutorial">help</button>
-        <div class="flex items-center gap-2 mr-4">
+        <button id="btn-onboarding-header" onclick="showOnboarding()" title="Info" class="material-symbols-outlined text-on-surface-variant hover:text-primary text-[20px] p-1 transition-colors" aria-label="Info">info</button>
+        <button id="btn-tutorial-header" onclick="startTutorial()" title="Tutorial" class="material-symbols-outlined text-on-surface-variant hover:text-primary text-[20px] p-1 transition-colors" aria-label="Tutorial">help</button>
+        <div id="simspeed-block" class="flex items-center gap-2 mr-4">
     <select id="simSpeed" class="bg-surface-container-high border border-outline-variant text-[11px] font-label-caps p-1 text-on-surface-variant cursor-pointer" aria-label="Geschwindigkeit">
         <option value="1.6">Langsam</option>
         <option value="1.0" selected>Normal</option>
         <option value="0.5">Schnell</option>
     </select>
-    <label class="flex items-center gap-1 text-[11px] font-label-caps text-on-surface-variant cursor-pointer" title="Schaltet zwischen Fachbegriffen und einfacher Sprache um">
+    <label id="lang-toggle-block" class="flex items-center gap-1 text-[11px] font-label-caps text-on-surface-variant cursor-pointer" title="Schaltet zwischen Fachbegriffen und einfacher Sprache um">
         <input type="checkbox" id="langToggle" onchange="toggleLanguage()" checked class="accent-primary" aria-label="Einfache Sprache umschalten">
         Einfache Sprache
     </label>
@@ -655,10 +753,47 @@
             </div>
         </details>
 
-        <!-- Didactic Tip -->
-        <div class="mt-auto border-t border-outline-variant p-4 bg-surface-container-lowest">
+        <!-- Beginner Sidebar (only visible in beginner mode) -->
+        <div class="beginner-only px-4 py-4 space-y-4">
+            <div class="bg-surface-container/60 border border-primary-container/20 p-3 rounded">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="material-symbols-outlined text-primary-container text-[18px]">smart_toy</span>
+                    <span class="text-[12px] font-label-caps text-primary-container font-bold">Was ist ein KI-Agent?</span>
+                </div>
+                <p class="text-[11px] text-on-surface-variant leading-relaxed">
+                    Ein Agent ist eine <strong class="text-primary">Schleife</strong>: Das LLM denkt nach, entscheidet welches Tool es braucht, bekommt das Ergebnis – und denkt erneut nach. Das ist das <strong class="text-secondary-container">ReAct-Framework</strong>.
+                </p>
+            </div>
+            <div>
+                <label class="text-[10px] font-label-caps text-primary uppercase tracking-wider block mb-1.5">Dein Auftrag an den Einkaufsagenten</label>
+                <div class="space-y-1.5 mb-2">
+                    <button onclick="loadBeginnerExample(1)" class="w-full text-left bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant p-2 rounded transition-all text-[10px] hover:border-primary-container group">
+                        <span class="text-primary-container group-hover:text-primary">→</span> "Bestelle 5 Tonnen Aluminium-Rohre"
+                    </button>
+                    <button onclick="loadBeginnerExample(2)" class="w-full text-left bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant p-2 rounded transition-all text-[10px] hover:border-primary-container group">
+                        <span class="text-primary-container group-hover:text-primary">→</span> "Vergleiche alle Lieferanten für Stahl"
+                    </button>
+                    <button onclick="loadBeginnerExample(3)" class="w-full text-left bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant p-2 rounded transition-all text-[10px] hover:border-primary-container group">
+                        <span class="text-primary-container group-hover:text-primary">→</span> "Zeige mir die Daten von Kunde Müller"
+                    </button>
+                </div>
+            </div>
+            <div>
+                <label class="text-[10px] font-label-caps text-on-surface-variant uppercase tracking-wider block mb-1">Oder eigenen Auftrag eingeben:</label>
+                <p class="text-[9px] text-on-surface-variant/60 mb-1">Dieser Text wird als Datenstrom an den Agenten geschickt.</p>
+            </div>
+        </div>
+
+        <!-- Didactic Tip (advanced only) -->
+        <div class="mt-auto border-t border-outline-variant p-4 bg-surface-container-lowest didactic-tip-advanced">
             <div class="text-[10px] font-code-sm text-primary-container font-bold mb-1">DIDAKTISCHER TIPP:</div>
             <div id="didactic-tip" class="text-[10px] text-on-surface-variant leading-tight"></div>
+        </div>
+
+        <!-- Beginner Tip -->
+        <div class="beginner-only mt-auto border-t border-outline-variant p-4 bg-surface-container-lowest">
+            <div class="text-[10px] font-code-sm text-primary-container font-bold mb-1">💡 TIPP:</div>
+            <div class="text-[10px] text-on-surface-variant leading-tight">Klicke auf "Execute Lab" um den Agenten zu starten. Beobachte, wie er selbstständig Tools benutzt um deinen Auftrag auszuführen.</div>
         </div>
     </aside>
 
@@ -688,6 +823,18 @@
             <path id="line-planner-router" class="node-line" d="" fill="none"/>
             <path id="line-planner-hitl" class="node-line" d="" fill="none"/>
             <path id="line-hitl-logger" class="node-line" d="" fill="none"/>
+            <!-- Beginner mode: simplified loop SVG -->
+            <g id="beginner-loop-svg">
+                <path id="line-beginner-think" d="M 275 210 L 390 210" stroke="#c3f400" stroke-width="2" stroke-dasharray="6 4" fill="none"/>
+                <polygon points="387,205 397,210 387,215" fill="#c3f400"/>
+                <text x="330" y="200" fill="#c3f400" font-size="10" font-family="JetBrains Mono" text-anchor="middle">Denken</text>
+                <path id="line-beginner-execute" d="M 630 210 L 710 210" stroke="#00eefc" stroke-width="2" stroke-dasharray="6 4" fill="none"/>
+                <polygon points="707,205 717,210 707,215" fill="#00eefc"/>
+                <text x="670" y="200" fill="#00eefc" font-size="10" font-family="JetBrains Mono" text-anchor="middle">Ausführen</text>
+                <path id="line-beginner-loop" d="M 810 250 C 810 330 100 330 100 250" stroke="#ffabf3" stroke-width="2" stroke-dasharray="6 4" fill="none"/>
+                <polygon points="103,255 97,245 107,245" fill="#ffabf3"/>
+                <text x="455" y="350" fill="#ffabf3" font-size="10" font-family="JetBrains Mono" text-anchor="middle">↻ Ergebnis zurück → nächste Runde</text>
+            </g>
         </svg>
 
         <!-- Node: Input -->
@@ -862,7 +1009,7 @@
 
     <!-- ─── RIGHT SIDEBAR ─── -->
     <aside class="w-80 bg-surface-container-lowest border-l border-outline-variant flex flex-col shrink-0">
-        <div class="p-4 border-b border-outline-variant">
+        <div class="p-4 border-b border-outline-variant state-inspector-header">
             <h2 class="text-label-caps font-label-caps text-primary">State Inspector (Memory)</h2>
         </div>
         <div class="flex-1 overflow-y-auto p-4 pb-16 scrollbar-custom bg-[#080808]">
@@ -2034,6 +2181,7 @@ function resetPositions() {
 
 // ─── 5. DRAG & DROP ──────────────────────────────────────────
 function onNodeMouseDown(e, nodeId) {
+  if (document.body.classList.contains('beginner-mode')) return;
   if (S.isRunning) return;
   if (e.target.closest('button') || e.target.closest('textarea') || e.target.closest('select') || e.target.closest('input')) return;
   closeNodeInfo();
@@ -2102,7 +2250,19 @@ document.addEventListener('dblclick', e => {
 
 // ─── 6. PARTICLE SYSTEM ─────────────────────────────────────
 function spawnParticles(pathId, color, count=4) {
-  const path = $(pathId);
+  let finalPathId = pathId;
+  if (document.body.classList.contains('beginner-mode')) {
+    if (pathId === 'line-input-validator' || pathId === 'line-validator-orchestrator' || pathId === 'line-validator-memory' || pathId === 'line-memory-orchestrator') {
+      finalPathId = 'line-beginner-think';
+    } else if (pathId === 'line-orchestrator-router' || pathId === 'line-planner-router') {
+      finalPathId = 'line-beginner-execute';
+    } else if (pathId === 'line-beginner-loop') {
+      finalPathId = 'line-beginner-loop';
+    } else {
+      return;
+    }
+  }
+  const path = $(finalPathId);
   if (!path || !path.getTotalLength) return;
   const svg = $('svg-layer');
   const totalLen = path.getTotalLength();
@@ -2207,7 +2367,74 @@ function saveApiSetup() {
     updateActiveModelBadge();
 }
 
+// ─── BEGINNER/ADVANCED MODE MANAGEMENT ───
+function selectAppMode(mode) {
+    localStorage.setItem('agentbox_mode', mode);
+    document.getElementById('mode-select-modal').style.display = 'none';
+    applyMode(mode);
+}
+
+function showModeSelector() {
+    document.getElementById('mode-select-modal').style.display = 'flex';
+}
+
+function applyMode(mode) {
+    if (mode === 'beginner') {
+        document.body.classList.add('beginner-mode');
+        document.getElementById('mode-badge-text').textContent = '🎓 Einsteiger';
+        // Auto-select procurement scenario
+        selectScenario('procurement');
+        // Set safe preset
+        setToPreset('safe');
+        // Activate only core nodes: input, orchestrator, router
+        if (typeof toggleNode === 'function') {
+            ['validator','memory','planner','hitl','logger'].forEach(n => {
+                const chk = document.getElementById('chk-' + n);
+                if (chk && chk.checked) { chk.checked = false; toggleNode(n); }
+            });
+            ['orchestrator','router'].forEach(n => {
+                const chk = document.getElementById('chk-' + n);
+                if (chk && !chk.checked) { chk.checked = true; toggleNode(n); }
+            });
+        }
+    } else {
+        document.body.classList.remove('beginner-mode');
+        document.getElementById('mode-badge-text').textContent = '🔬 Experte';
+        // Restore default graph
+        if (typeof resetGraph === 'function') resetGraph();
+    }
+}
+
+function loadBeginnerExample(n) {
+    const examples = {
+        1: { input: 'Bestellung: 5 Tonnen Aluminium-Rohre, Liefertermin: nächste Woche, Budget: max. 25.000 EUR', prompt: 'Du bist ein Einkaufsagent. Prüfe Lieferanten und Preise, dann bestelle zum besten Preis.' },
+        2: { input: 'Anfrage: Vergleiche alle verfügbaren Lieferanten für Stahl-Flachprodukte, Menge: 10 Tonnen', prompt: 'Du bist ein Einkaufsagent. Vergleiche Lieferanten nach Preis, Lieferzeit und Zuverlässigkeit.' },
+        3: { input: 'Kundenanfrage: Zeige alle Daten zu Kunde Müller (ID: 1) inklusive Bestellhistorie', prompt: 'Du bist ein Einkaufsagent. Suche den Kunden in der Datenbank und zeige alle relevanten Informationen.' }
+    };
+    const ex = examples[n];
+    if (ex) {
+        const inputEl = document.getElementById('customInputText');
+        const promptEl = document.getElementById('systemPrompt');
+        if (inputEl) inputEl.value = ex.input;
+        if (promptEl) promptEl.value = ex.prompt;
+        // Trigger input change handlers
+        if (typeof onCustomInputChanged === 'function') onCustomInputChanged();
+    }
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
+    // ── Mode Selection ──
+    const savedMode = localStorage.getItem('agentbox_mode');
+    if (savedMode) {
+        applyMode(savedMode);
+    } else {
+        // First visit: show mode selector
+        setTimeout(() => {
+            document.getElementById('mode-select-modal').style.display = 'flex';
+        }, 300);
+    }
+
+    // ── API Config (existing logic) ──
     try {
         const response = await fetch(`${API_BASE}/api/config`);
         if (response.ok) {
@@ -2222,18 +2449,18 @@ window.addEventListener('DOMContentLoaded', async () => {
             const serverHasKeys = config.anyKeyConfigured;
             
             if (!localKey && !serverHasKeys) {
-                setTimeout(showApiSetup, 500);
+                setTimeout(showApiSetup, 800);
             }
             updateActiveModelBadge(config);
         } else {
             if (!localStorage.getItem('agentbox_apikey')) {
-                setTimeout(showApiSetup, 500);
+                setTimeout(showApiSetup, 800);
             }
             updateActiveModelBadge();
         }
     } catch (e) {
         if (!localStorage.getItem('agentbox_apikey')) {
-            setTimeout(showApiSetup, 500);
+            setTimeout(showApiSetup, 800);
         }
         updateActiveModelBadge();
     }
@@ -2945,6 +3172,10 @@ async function finishSimulation(prompt, result) {
                 outBox.innerHTML = `<span class="text-error">[Fehler] ${escapeHtml(execData.error)}</span>`;
             } else {
                 outBox.innerHTML = `<span class="text-primary-container">${escapeHtml(execData.output || JSON.stringify(execData))}</span>`;
+                if (document.body.classList.contains('beginner-mode')) {
+                    spawnParticles('line-beginner-loop', '#ffabf3', 3);
+                    setTimeout(clearParticles, 3000);
+                }
             }
         } catch(err) {
             outBox.innerHTML = `<span class="text-error">[Netzwerkfehler] ${err.message}</span>`;
