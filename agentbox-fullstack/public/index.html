@@ -86,7 +86,16 @@
         .severity-btn.active-safe{background:#00eefc!important;color:#00363a!important}
         .severity-btn.active-danger{background:#ffb4ab!important;color:#690005!important}
         .onboarding-card{background:rgba(28,27,28,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid #444933}
-        #spotlight-hole{position:fixed;z-index:201;border:2px solid #c3f400;box-shadow:0 0 0 9999px rgba(5,5,5,.85);pointer-events:none;transition:all .4s ease}
+        #spotlight-hole{position:fixed;z-index:201;border:2px solid #c3f400;box-shadow:0 0 0 9999px rgba(5,5,5,.45);pointer-events:none;transition:all .4s ease}
+        #experiment-guide-card {
+            border: 1px solid rgba(0, 238, 252, 0.25);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6), inset 0 0 1px 1px rgba(255, 255, 255, 0.05);
+            animation: fadeSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        #experiment-guide-card:hover {
+            border-color: rgba(0, 238, 252, 0.45);
+            box-shadow: 0 8px 32px 0 rgba(0, 238, 252, 0.15), 0 12px 40px 0 rgba(0, 0, 0, 0.6);
+        }
         #tutorial-tooltip{position:fixed;z-index:202;width:320px;background:#1c1b1c;border:1px solid #c3f400;padding:16px;box-shadow:0 0 20px rgba(195,244,0,.25)}
         @keyframes scoreReveal{from{stroke-dashoffset:220}to{stroke-dashoffset:var(--target-offset)}}
         @keyframes fadeSlideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
@@ -720,6 +729,45 @@
             <button onclick="resetPositions()" class="bg-surface-container/80 backdrop-blur border border-outline-variant px-3 py-1 flex items-center gap-1.5 text-[10px] font-label-caps text-on-surface-variant hover:text-primary transition-colors">
                 <span class="material-symbols-outlined text-[14px]" aria-hidden="true">restart_alt</span>Reset Layout
             </button>
+        </div>
+
+        <!-- Floating Experiment Guide Card -->
+        <div id="experiment-guide-card" class="absolute bottom-4 left-4 z-[40] w-[360px] bg-[#1c1b1c]/90 border border-outline-variant rounded-lg p-4 backdrop-blur-md hidden" role="region" aria-label="Experiment Leitfaden">
+            <div class="flex justify-between items-start mb-2 border-b border-outline-variant/30 pb-2">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-[18px]">science</span>
+                    <h4 class="text-[12px] font-bold text-primary font-label-caps tracking-wide uppercase" id="guide-title font-sans">Experiment-Leitfaden</h4>
+                </div>
+                <button onclick="closeExperimentGuide()" class="material-symbols-outlined text-on-surface-variant hover:text-error text-[16px] cursor-pointer" aria-label="Leitfaden schließen">close</button>
+            </div>
+            <div class="space-y-3 font-sans">
+                <div>
+                    <div class="text-[9px] font-label-caps text-secondary-container uppercase tracking-wider mb-0.5 font-bold">🔍 Was passiert hier?</div>
+                    <p id="guide-description" class="text-[11px] leading-relaxed text-on-surface-variant font-medium"></p>
+                </div>
+                <div class="flex flex-col gap-2 bg-surface-container-low/40 p-2 rounded border border-outline-variant/20">
+                    <div class="flex justify-between items-center">
+                        <span id="guide-data-source-text" class="text-[10px] text-on-surface-variant font-code-sm font-medium">Datenquelle: --</span>
+                        <button id="guide-db-btn" onclick="" class="px-2 py-0.5 bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant text-[9px] font-label-caps text-primary flex items-center gap-1 rounded transition-colors cursor-pointer font-bold uppercase tracking-wider">
+                            <span class="material-symbols-outlined text-[10px]">database</span> DB ansehen
+                        </button>
+                    </div>
+                    <div class="flex justify-between items-center border-t border-outline-variant/10 pt-1.5 mt-0.5">
+                        <span class="text-[10px] text-on-surface-variant font-code-sm font-medium">Instruktion (System-Prompt)</span>
+                        <button onclick="highlightSystemPrompt()" class="px-2 py-0.5 bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant text-[9px] font-label-caps text-primary flex items-center gap-1 rounded transition-colors cursor-pointer font-bold uppercase tracking-wider">
+                            <span class="material-symbols-outlined text-[10px]">terminal</span> Prompt zeigen
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <div class="text-[9px] font-label-caps text-secondary-container uppercase tracking-wider mb-0.5 font-bold">🧠 Wie entscheidet der Agent?</div>
+                    <p id="guide-decision-flow" class="text-[11px] leading-relaxed text-on-surface-variant font-medium"></p>
+                </div>
+                <div class="border-t border-outline-variant/30 pt-2 flex items-center justify-between text-[9px] font-code-sm text-primary-container">
+                    <span class="flex items-center gap-1 animate-pulse font-bold"><span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span> BEREIT ZUM START</span>
+                    <span class="font-bold">Klicke oben rechts auf "Execute Lab"</span>
+                </div>
+            </div>
         </div>
 
         <!-- SVG Layer -->
@@ -2464,6 +2512,27 @@ function toggleRightSidebar() {
     }
   }
 }
+function closeExperimentGuide() {
+  const card = $('experiment-guide-card');
+  if (card) card.style.display = 'none';
+}
+function openDatabaseTabFromGuide(tabName) {
+  showDatabaseModal();
+  switchDatabaseTab(tabName);
+}
+function highlightSystemPrompt() {
+  const textarea = $('systemPrompt');
+  if (textarea) {
+    const details = textarea.closest('details');
+    if (details) details.open = true;
+    textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    textarea.focus();
+    textarea.classList.add('ring-2', 'ring-primary', 'border-primary', 'animate-pulse');
+    setTimeout(() => {
+      textarea.classList.remove('ring-2', 'ring-primary', 'border-primary', 'animate-pulse');
+    }, 2500);
+  }
+}
 // Init language on load
 window.addEventListener("DOMContentLoaded", () => {
     toggleLanguage();
@@ -2474,6 +2543,7 @@ function startLabSimulation() {
     window.location.reload();
     return;
   }
+  closeExperimentGuide();
   S.isRunning = true;
 
   const btn = $('executeBtn');
@@ -3383,6 +3453,12 @@ function closeOnboardingStartTutorial() {
 
 function loadExperiment(expId) {
   resetVisualState();
+  let guideTitle = '';
+  let guideDesc = '';
+  let guideDb = '';
+  let guideDbBtnLabel = '';
+  let guideFlow = '';
+
   if (expId === 'exp1') {
     // Ungeschützte KI
     S.activeNodes = { input:true, validator:true, memory:false, orchestrator:true, planner:false, router:true, hitl:false, logger:true };
@@ -3391,6 +3467,12 @@ function loadExperiment(expId) {
     setToPreset('danger');
     loadExamplePrompt();
     showTutorialSpotlight('#executeBtn', 'Experiment 1: Ungeschützte KI', 'Dieses Experiment zeigt, wie eine ungeschützte KI bei hoher Temperatur (1.5) halluziniert. Klicke auf <strong>&quot;Execute Lab&quot;</strong>, um zu sehen, wie die Bedrohung durchrutscht und das System crasht.', 'bottom', true);
+
+    guideTitle = 'Experiment 1: Ungeschützte KI (Crash)';
+    guideDesc = 'Dieses Experiment zeigt, wie eine ungeschützte KI bei hoher Temperatur (1.5) halluziniert (Reasoning Drift). Dadurch missachtet sie Sicherheitsregeln und führt riskante Aktionen aus.';
+    guideDb = 'customers';
+    guideDbBtnLabel = 'Kundendaten';
+    guideFlow = 'Das LLM ignoriert aufgrund der hohen Temperatur die Anweisung, Phishing-Links zu blockieren. Der Action Router leitet den Link direkt weiter, was zum System-Crash führt.';
   } else if (expId === 'exp2') {
     // Human-in-the-Loop
     S.activeNodes = { input:true, validator:true, memory:false, orchestrator:true, planner:false, router:true, hitl:true, logger:true };
@@ -3399,6 +3481,12 @@ function loadExperiment(expId) {
     setToPreset('danger');
     loadExamplePrompt();
     showTutorialSpotlight('#executeBtn', 'Experiment 2: Human-in-the-Loop', 'Das klassische Sicherheitsnetz ist aktiv. Klicke auf <strong>&quot;Execute Lab&quot;</strong>. Der verdächtige Input wird abgefangen und wartet im HITL-Knoten auf deine Bestätigung.', 'bottom', true);
+
+    guideTitle = 'Experiment 2: Human-in-the-Loop';
+    guideDesc = 'Das klassische Sicherheitsnetz fängt Bedrohungen ab. Riskante Aktionen werden nicht automatisch ausgeführt, sondern an den Human-in-the-Loop-Knoten zur Freigabe übergeben.';
+    guideDb = 'customers';
+    guideDbBtnLabel = 'Kundendaten';
+    guideFlow = 'Das LLM erkennt das Risiko. Statt direkt zu routen, leitet es die Ausführung an den HITL-Knoten weiter und wartet auf deine Bestätigung auf dem Canvas.';
   } else if (expId === 'exp3') {
     // Symbolischer Planer
     S.activeNodes = { input:true, validator:true, memory:false, orchestrator:true, planner:true, router:true, hitl:true, logger:true };
@@ -3407,6 +3495,12 @@ function loadExperiment(expId) {
     setToPreset('danger');
     loadExamplePrompt();
     showTutorialSpotlight('#executeBtn', 'Experiment 3: Solver-Shield', 'Der symbolische Planer ist aktiv. Klicke auf <strong>&quot;Execute Lab&quot;</strong>. Trotz hoher LLM-Temperatur (1.5) und drohendem Drift fängt der PDDL-Planer den Fehler ab und rettet das System!', 'bottom', true);
+
+    guideTitle = 'Experiment 3: Solver-Shield (Planer)';
+    guideDesc = 'Der symbolische Planer schützt vor Halluzinationen und Drift bei hoher Temperatur (1.5). Er gleicht Pläne mit mathematisch definierten Randbedingungen ab.';
+    guideDb = 'customers';
+    guideDbBtnLabel = 'Kundendaten';
+    guideFlow = 'Das LLM generiert trotz Drift-Fehler einen Plan. Der Planer-Knoten verifiziert diesen mathematisch, erkennt den Regelverstoß und blockiert die Ausführung sicher.';
   } else if (expId === 'exp4') {
     // RAG-Gedächtnis
     S.activeNodes = { input:true, validator:true, memory:true, orchestrator:true, planner:false, router:true, hitl:true, logger:true };
@@ -3419,6 +3513,12 @@ function loadExperiment(expId) {
     updateInputNode();
     loadExamplePrompt();
     showTutorialSpotlight('#executeBtn', 'Experiment 4: Gedächtnis-Shield', 'Das RAG-Speicher-Modul ist aktiv und wir haben eine lange E-Mail mit viel Rauschen geladen. Klicke auf <strong>&quot;Execute Lab&quot;</strong>. Der RAG-Speicher filtert das Rauschen, verhindert Context-Drift und schützt das System.', 'bottom', true);
+
+    guideTitle = 'Experiment 4: Gedächtnis-Shield (RAG)';
+    guideDesc = 'Das RAG-Gedächtnis schützt vor Context-Drift. Wenn eine E-Mail sehr lang ist und viel Rauschen enthält (wie Newsletter), verliert das LLM oft den Fokus.';
+    guideDb = 'customers';
+    guideDbBtnLabel = 'Kundendaten';
+    guideFlow = 'Der RAG-Speicher filtert das Rauschen heraus und übergibt dem LLM nur den sicherheitsrelevanten E-Mail-Kern. Dadurch bleibt die Sicherheitsregel aktiv.';
   } else if (expId === 'exp5') {
     // Autonome Einkaufs-Entscheidung (BUY)
     selectScenario('procurement');
@@ -3430,6 +3530,12 @@ function loadExperiment(expId) {
     updateInputNode();
     $('systemPrompt').value = "Du bist ein Einkaufsagent. Suche in der Lieferanten-Datenbank nach Angeboten für Aluminium-Rohre. Vergleiche die Preise und Lieferzeiten, berechne das beste Angebot und bestelle es.";
     showTutorialSpotlight('#executeBtn', 'Experiment 5: Autonomer Einkauf', 'Der Agent vergleicht autonom Angebote in der Lieferantendatenbank und führt die Bestellung aus. Klicke auf <strong>&quot;Execute Lab&quot;</strong>.', 'bottom', true);
+
+    guideTitle = 'Experiment 5: Autonomer Einkauf (BUY)';
+    guideDesc = 'Der Agent vergleicht Angebote in der Lieferantendatenbank und bestellt selbstständig. Hier wird Function Calling live im Backend ausgeführt.';
+    guideDb = 'suppliers';
+    guideDbBtnLabel = 'Lieferantendaten';
+    guideFlow = 'Das LLM entscheidet selbstständig, die Funktion `search_supplier_db` aufzurufen. Es vergleicht die Preise und bucht das beste Angebot unter 25.000 €.';
   } else if (expId === 'exp6') {
     // Terminkonflikt-Lösung (MTG)
     selectScenario('meeting');
@@ -3441,6 +3547,12 @@ function loadExperiment(expId) {
     updateInputNode();
     $('systemPrompt').value = "Du bist ein Kalenderagent. Buche das Meeting, es sei denn, es gibt einen Terminkonflikt mit dem Vorstand. Prüfe die Datenbank.";
     showTutorialSpotlight('#executeBtn', 'Experiment 6: Termin-Buchung', 'Der Agent prüft Terminkonflikte in der Kalenderdatenbank und bucht das Meeting autonom. Klicke auf <strong>&quot;Execute Lab&quot;</strong>.', 'bottom', true);
+
+    guideTitle = 'Experiment 6: Terminfindung (MTG)';
+    guideDesc = 'Der Agent liest Kalendereinträge aus der Datenbank, sucht nach Konflikten (z.B. mit dem Vorstand) und bucht Termine autonom.';
+    guideDb = 'customers';
+    guideDbBtnLabel = 'Kundendaten';
+    guideFlow = 'Das LLM ruft über ein Tool die Kalendereinträge ab, stellt fest, ob ein Konflikt vorliegt, und bucht das Meeting, wenn der Termin frei ist.';
   } else if (expId === 'exp7') {
     // E-Mail Triage & Entwurf (MAIL)
     selectScenario('email');
@@ -3452,6 +3564,30 @@ function loadExperiment(expId) {
     updateInputNode();
     $('systemPrompt').value = "Du bist ein E-Mail-Agent. Lies die E-Mail und erstelle eine passende, höfliche Antwort-Vorlage.";
     showTutorialSpotlight('#executeBtn', 'Experiment 7: E-Mail-Entwurf', 'Der Agent liest eine Kundenanfrage und verfasst einen automatischen Antwortentwurf. Klicke auf <strong>&quot;Execute Lab&quot;</strong>.', 'bottom', true);
+
+    guideTitle = 'Experiment 7: E-Mail-Entwurf (MAIL)';
+    guideDesc = 'Der Agent liest Kundenanfragen, sucht zugehörige Bestelldaten in der Datenbank und entwirft automatisch einen passenden E-Mail-Entwurf.';
+    guideDb = 'customers';
+    guideDbBtnLabel = 'Kundendaten';
+    guideFlow = 'Das LLM ruft die Bestelldaten für Kunde Müller ab, liest den Lieferstatus aus und verfasst einen präzisen, personalisierten Antwortentwurf im Terminal.';
+  }
+
+  // Set Guide Card content
+  const guideCard = $('experiment-guide-card');
+  if (guideCard) {
+    const titleEl = document.getElementById('guide-title') || guideCard.querySelector('h4');
+    if (titleEl) titleEl.innerText = guideTitle;
+    $('guide-description').innerText = guideDesc;
+    $('guide-data-source-text').innerText = 'Datenquelle: ' + (guideDb === 'suppliers' ? 'suppliers.json' : 'customers.json');
+    
+    const dbBtn = $('guide-db-btn');
+    if (dbBtn) {
+      dbBtn.innerHTML = `<span class="material-symbols-outlined text-[10px]">database</span> ${guideDbBtnLabel} einsehen`;
+      dbBtn.setAttribute('onclick', `openDatabaseTabFromGuide('${guideDb}')`);
+    }
+    
+    $('guide-decision-flow').innerText = guideFlow;
+    guideCard.style.display = 'block';
   }
 
   // Update checkboxes in sidebar
