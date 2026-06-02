@@ -198,40 +198,167 @@
                 min-height: 600px;
             }
         }
+
+        /* Collapsible Right Sidebar */
+        #sidebar-right {
+            transition: all 0.3s ease-in-out;
+        }
+        #sidebar-right.collapsed {
+            width: 0px !important;
+            min-width: 0px !important;
+            max-width: 0px !important;
+            border-left-width: 0px !important;
+        }
+        #sidebar-right.collapsed .sidebar-right-content {
+            display: none !important;
+        }
     </style>
 </head>
 <body class="h-screen flex flex-col">
 
 <!-- ═══════════════════════════════════════════════════════════ -->
 
-<!-- API SETUP MODAL -->
+<!-- API SETUP MODAL (System-Einstellungen) -->
 <div id="api-setup-modal" class="fixed inset-0 z-[70] flex items-center justify-center bg-black/80 backdrop-blur-sm" style="display:none" role="dialog" aria-modal="true">
-  <div class="bg-surface border border-outline-variant rounded p-6 max-w-md w-full mx-4 relative">
-    <button onclick="closeApiSetup()" class="absolute top-4 right-4 material-symbols-outlined text-on-surface-variant hover:text-error text-[20px]">close</button>
-    <h3 class="text-primary font-headline-lg text-[18px] mb-2 flex items-center gap-2">
-      <span class="material-symbols-outlined text-secondary-container">key</span> API Setup
+  <div class="bg-surface border border-outline-variant rounded p-6 max-w-4xl w-full mx-4 relative">
+    <button onclick="closeApiSetup()" class="absolute top-4 right-4 material-symbols-outlined text-on-surface-variant hover:text-error text-[20px] cursor-pointer">close</button>
+    <h3 class="text-primary font-headline-lg text-[18px] mb-4 flex items-center gap-2 border-b border-outline-variant/30 pb-2">
+      <span class="material-symbols-outlined text-secondary-container">settings</span> System-Einstellungen
     </h3>
-    <p class="text-on-surface-variant text-[12px] mb-6">Wähle deinen KI-Provider und gib deinen API-Key ein. Der Key wird sicher lokal in deinem Browser gespeichert und bei Tests temporär an das Backend übergeben.</p>
     
-    <label class="block text-[11px] font-label-caps text-on-surface-variant uppercase tracking-wider mb-1">Provider</label>
-    <select id="api-provider" class="w-full bg-surface-container-high border border-outline-variant p-2 text-on-surface mb-4">
-      <option value="gemini">Google Gemini (Flash 2.5)</option>
-      <option value="openai">OpenAI (GPT-4o-mini)</option>
-      <option value="anthropic">Anthropic (Claude 3.5 Sonnet)</option>
-      <option value="deepseek">DeepSeek (Chat)</option>
-    </select>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      
+      <!-- Spalte 1: API & Modell-Parameter -->
+      <div class="space-y-4 border-r border-outline-variant/30 pr-4">
+        <h4 class="text-[11px] font-label-caps text-primary uppercase font-bold border-b border-outline-variant/30 pb-1 flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[14px]">key</span> API & Modell
+        </h4>
+        
+        <div>
+          <label class="block text-[10px] font-label-caps text-on-surface-variant uppercase tracking-wider mb-1">Provider</label>
+          <select id="api-provider" class="w-full bg-surface-container-high border border-outline-variant p-2 text-on-surface text-[12px] focus:outline-none">
+            <option value="gemini">Google Gemini (Flash 2.5)</option>
+            <option value="openai">OpenAI (GPT-4o-mini)</option>
+            <option value="anthropic">Anthropic (Claude 3.5 Sonnet)</option>
+            <option value="deepseek">DeepSeek (Chat)</option>
+          </select>
+        </div>
+        
+        <div>
+          <label class="block text-[10px] font-label-caps text-on-surface-variant uppercase tracking-wider mb-1">API Key</label>
+          <input type="password" id="api-key" placeholder="sk-..." class="w-full bg-surface-container-high border border-outline-variant p-2 text-on-surface font-code-sm text-[12px] focus:border-primary focus:outline-none">
+        </div>
+        
+        <div class="space-y-1 pt-2 border-t border-outline-variant/30">
+          <div class="flex justify-between items-center">
+            <label class="text-[10px] font-label-caps text-on-surface-variant uppercase flex items-center gap-1">
+              <span>Temperatur (LLM)</span>
+              <span id="tempRiskBadge" class="text-[8px] font-bold text-secondary-container px-1.5 py-0.5 rounded bg-secondary-container/10">STABIL</span>
+            </label>
+          </div>
+          <input id="tempInput" oninput="updateParams()" class="w-full accent-primary-container bg-surface-container-high h-1 appearance-none cursor-pointer" type="range" min="0" max="200" value="20"/>
+          <div class="flex justify-between text-[9px] font-code-sm text-secondary-container">
+            <span>0.0 (Präzise)</span>
+            <span class="text-primary-container font-bold" id="tempValue">0.2</span>
+            <span>2.0 (Drift)</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Spalte 2: Graph-Architektur -->
+      <div class="space-y-4 border-r border-outline-variant/30 pr-4">
+        <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1">
+          <h4 class="text-[11px] font-label-caps text-primary uppercase font-bold flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[14px]">account_tree</span> Graph-Architektur
+          </h4>
+          <div class="flex gap-1.5">
+            <button onclick="clearGraph()" class="text-[8px] font-label-caps text-error hover:underline cursor-pointer" title="Deaktiviert alle optionalen Knoten">Leeren</button>
+            <span class="text-outline-variant text-[8px]">|</span>
+            <button onclick="resetGraph()" class="text-[8px] font-label-caps text-primary-container hover:underline cursor-pointer" title="Standard wiederherstellen">Standard</button>
+          </div>
+        </div>
+        
+        <div class="space-y-2 max-h-60 overflow-y-auto pr-1 scrollbar-custom">
+          <label class="flex items-center gap-2 text-[10px] text-on-surface-variant cursor-pointer select-none" title="Aktiviert die technische Format- und Integritätsprüfung">
+            <input type="checkbox" id="chk-validator" checked onchange="toggleNode('validator')" class="accent-primary-container w-3.5 h-3.5"/>
+            <span>Validator (Türsteher)</span>
+          </label>
+          <label class="flex items-center gap-2 text-[10px] text-on-surface-variant cursor-pointer select-none" title="Aktiviert die RAG-basierte speichergestützte Planung mit Erfahrungswerten">
+            <input type="checkbox" id="chk-memory" checked onchange="toggleNode('memory')" class="accent-primary-container w-3.5 h-3.5"/>
+            <span>RAG-Gedächtnis (Speicher)</span>
+          </label>
+          <label class="flex items-center gap-2 text-[10px] text-on-surface-variant cursor-pointer select-none" title="Aktiviert das KI-Modell zur Interpretation deines System-Prompts">
+            <input type="checkbox" id="chk-orchestrator" checked onchange="toggleNode('orchestrator')" class="accent-primary-container w-3.5 h-3.5"/>
+            <span>Orchestrator (Gehirn)</span>
+          </label>
+          <label class="flex items-center gap-2 text-[10px] text-on-surface-variant cursor-pointer select-none" title="Aktiviert den symbolischen Planer (neuro-symbolisch) zur Verifikation von Plänen">
+            <input type="checkbox" id="chk-planner" checked onchange="toggleNode('planner')" class="accent-primary-container w-3.5 h-3.5"/>
+            <span>Planer (neuro-symbolisch)</span>
+          </label>
+          <label class="flex items-center gap-2 text-[10px] text-on-surface-variant cursor-pointer select-none" title="Aktiviert den Action Router">
+            <input type="checkbox" id="chk-router" checked onchange="toggleNode('router')" class="accent-primary-container w-3.5 h-3.5"/>
+            <span>Action Router (Ausführung)</span>
+          </label>
+          <label class="flex items-center gap-2 text-[10px] text-on-surface-variant cursor-pointer select-none" title="Aktiviert das Sicherheitsnetz für menschliche Freigaben bei Gefahr">
+            <input type="checkbox" id="chk-hitl" checked onchange="toggleNode('hitl')" class="accent-primary-container w-3.5 h-3.5"/>
+            <span>Human-in-the-Loop (Freigabe)</span>
+          </label>
+          <label class="flex items-center gap-2 text-[10px] text-on-surface-variant cursor-pointer select-none" title="Aktiviert die Protokollierung und Incident-Meldung für IT-Sicherheit">
+            <input type="checkbox" id="chk-logger" checked onchange="toggleNode('logger')" class="accent-primary-container w-3.5 h-3.5"/>
+            <span>Incident Logger (Logbuch)</span>
+          </label>
+        </div>
+      </div>
+      
+      <!-- Spalte 3: Berechtigungen & Szenarien-Auswahl -->
+      <div class="space-y-4">
+        <h4 class="text-[11px] font-label-caps text-primary uppercase font-bold border-b border-outline-variant/30 pb-1 flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[14px]">shield</span> Berechtigungen & Szenario
+        </h4>
+        
+        <div>
+          <label class="block text-[10px] font-label-caps text-on-surface-variant uppercase tracking-wider mb-1">Szenario auswählen</label>
+          <select id="setting-scenario" onchange="selectScenario(this.value)" class="w-full bg-surface-container-high border border-outline-variant p-2 text-on-surface text-[12px] focus:outline-none">
+            <option value="email">E-Mail-Triage (MAIL)</option>
+            <option value="meeting">Kalender-Meeting (MTG)</option>
+            <option value="procurement">KI-Einkaufsagent (BUY)</option>
+            <option value="document">Dokumenten-Scanner (DOC - Erweitert)</option>
+            <option value="ticket">IT-Ticket-Bearbeitung (TKT - Erweitert)</option>
+            <option value="budget">Budget-Prüfung (BGT - Erweitert)</option>
+          </select>
+        </div>
+        
+        <div class="space-y-1.5 pt-2 border-t border-outline-variant/30">
+          <label class="block text-[10px] font-label-caps text-on-surface-variant uppercase tracking-wider mb-1">Agenten-Rechte</label>
+          <label class="flex items-center gap-2 text-[10px] text-on-surface-variant/50 cursor-not-allowed select-none" title="Der Agent muss Eingangsdaten lesen können">
+            <input type="checkbox" checked disabled class="accent-primary-container w-3.5 h-3.5 opacity-50"/>
+            <span>Leserechte (Datenstrom)</span>
+          </label>
+          <label class="flex items-center gap-2 text-[10px] text-on-surface-variant cursor-pointer select-none" title="Erlaubt dem Agenten, Dateien im System zu schreiben oder zu ändern">
+            <input type="checkbox" id="perm-write" checked class="accent-primary-container w-3.5 h-3.5"/>
+            <span>Schreibrechte (System)</span>
+          </label>
+          <label class="flex items-center gap-2 text-[10px] text-on-surface-variant cursor-pointer select-none" title="Erlaubt externe HTTP-API-Aufrufe">
+            <input type="checkbox" id="perm-network" checked class="accent-primary-container w-3.5 h-3.5"/>
+            <span>HTTP-Aufrufe (Netzwerk)</span>
+          </label>
+          <label class="flex items-center gap-2 text-[10px] text-on-surface-variant cursor-pointer select-none" title="Erlaubt das Freigeben von Geldbeträgen oder Finanztransaktionen">
+            <input type="checkbox" id="perm-finance" checked class="accent-primary-container w-3.5 h-3.5"/>
+            <span>Finanzfreigaben (Einkauf)</span>
+          </label>
+        </div>
+      </div>
+      
+    </div>
     
-    <label class="block text-[11px] font-label-caps text-on-surface-variant uppercase tracking-wider mb-1">API Key</label>
-    <input type="password" id="api-key" placeholder="sk-..." class="w-full bg-surface-container-high border border-outline-variant p-2 text-on-surface font-code-sm mb-6 focus:border-primary focus:outline-none">
-    
-    <div class="flex justify-between items-center gap-3">
-      <button onclick="testApiConnection()" class="px-4 py-2 text-[12px] font-label-caps bg-tertiary-container text-on-tertiary-container hover:bg-tertiary flex items-center gap-2 transition-colors">
+    <div class="flex justify-between items-center gap-3 border-t border-outline-variant/30 pt-4">
+      <button onclick="testApiConnection()" class="px-4 py-2 text-[12px] font-label-caps bg-tertiary-container text-on-tertiary-container hover:bg-tertiary flex items-center gap-2 transition-colors cursor-pointer">
         <span class="material-symbols-outlined text-[14px]">wifi_tethering</span>
         <span id="testBtnText">Verbindung testen</span>
       </button>
       <div class="flex gap-3">
-        <button onclick="closeApiSetup()" class="px-4 py-2 text-[12px] font-label-caps text-on-surface-variant hover:text-primary">Abbrechen</button>
-        <button onclick="saveApiSetup()" class="px-4 py-2 text-[12px] font-label-caps bg-primary-container text-on-primary-container font-bold tracking-wider">Speichern</button>
+        <button onclick="closeApiSetup()" class="px-4 py-2 text-[12px] font-label-caps text-on-surface-variant hover:text-primary cursor-pointer">Schließen</button>
+        <button onclick="saveApiSetup()" class="px-4 py-2 text-[12px] font-label-caps bg-primary-container text-on-primary-container font-bold tracking-wider cursor-pointer">Speichern</button>
       </div>
     </div>
   </div>
@@ -421,11 +548,91 @@
 
     <!-- ─── LEFT SIDEBAR ─── -->
     <aside id="sidebar-left" class="w-72 bg-surface-container-low border-r border-outline-variant flex flex-col pt-4 overflow-y-auto scrollbar-custom shrink-0" role="complementary" aria-label="Graph Konfiguration">
-        <!-- Mission Panel -->
+        <!-- Didaktisches Labor (Jetzt an erster Stelle) -->
+        <details class="sidebar-section px-4 border-b border-outline-variant pb-3 mb-3" id="experiments-section" open>
+            <summary class="cursor-pointer">
+                <div class="flex justify-between items-center w-full">
+                    <h2 class="text-label-caps font-label-caps text-primary flex items-center gap-1.5">
+                        <span>1. Didaktisches Labor</span>
+                    </h2>
+                    <span class="material-symbols-outlined expand-icon text-on-surface-variant text-[14px]" aria-hidden="true">expand_more</span>
+                </div>
+            </summary>
+            <div class="space-y-2 mt-2">
+                <p class="text-[10px] text-on-surface-variant leading-relaxed">
+                    Wähle ein geführtes Experiment, um Agenten-Fähigkeiten und Schutzschilde zu testen:
+                </p>
+                <div class="grid grid-cols-1 gap-1.5 max-h-72 overflow-y-auto pr-1 scrollbar-custom">
+                    <!-- Positive Capabilities (Agenten-Fähigkeiten) -->
+                    <div class="text-[9px] font-label-caps text-secondary-container mt-1 uppercase border-b border-outline-variant/30 pb-0.5 mb-1 font-bold">Aktionen & Fähigkeiten</div>
+                    
+                    <button onclick="loadExperiment('exp5')" class="text-left bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant p-1.5 rounded transition-all text-[10px] hover:border-primary group">
+                        <div class="font-bold text-on-surface group-hover:text-primary flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[12px]" aria-hidden="true">shopping_cart</span>
+                            Autonomer Einkauf (BUY)
+                        </div>
+                        <div class="text-[8px] text-on-surface-variant opacity-70 mt-0.5">Agent vergleicht Preise/Lieferanten und kauft selbstständig ein.</div>
+                    </button>
+                    
+                    <button onclick="loadExperiment('exp6')" class="text-left bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant p-1.5 rounded transition-all text-[10px] hover:border-primary group">
+                        <div class="font-bold text-on-surface group-hover:text-primary flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[12px]" aria-hidden="true">event</span>
+                            Terminfindung (MTG)
+                        </div>
+                        <div class="text-[8px] text-on-surface-variant opacity-70 mt-0.5">Prüfung von Kalender-Konflikten und automatische Buchung.</div>
+                    </button>
+
+                    <button onclick="loadExperiment('exp7')" class="text-left bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant p-1.5 rounded transition-all text-[10px] hover:border-primary group">
+                        <div class="font-bold text-on-surface group-hover:text-primary flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[12px]" aria-hidden="true">mail</span>
+                            E-Mail-Triage & Entwurf (MAIL)
+                        </div>
+                        <div class="text-[8px] text-on-surface-variant opacity-70 mt-0.5">Automatisches Lesen von Mails und Vorbereiten von Antworten.</div>
+                    </button>
+
+                    <!-- Safety & Guardrails -->
+                    <div class="text-[9px] font-label-caps text-error mt-2 uppercase border-b border-outline-variant/30 pb-0.5 mb-1 font-bold">Leitplanken & Schutzschilde</div>
+
+                    <button onclick="loadExperiment('exp1')" class="text-left bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant p-1.5 rounded transition-all text-[10px] hover:border-error group">
+                        <div class="font-bold text-on-surface group-hover:text-error flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[12px]" aria-hidden="true">running_with_errors</span>
+                            1. Ungeschützte KI (Crash)
+                        </div>
+                        <div class="text-[8px] text-on-surface-variant opacity-70 mt-0.5">Wie LLM-Drift bei hoher Temperatur direkt zum Systemsturz führt.</div>
+                    </button>
+                    
+                    <button onclick="loadExperiment('exp2')" class="text-left bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant p-1.5 rounded transition-all text-[10px] hover:border-tertiary group">
+                        <div class="font-bold text-on-surface group-hover:text-tertiary flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[12px]" aria-hidden="true">record_voice_over</span>
+                            2. Human-in-the-Loop
+                        </div>
+                        <div class="text-[8px] text-on-surface-variant opacity-70 mt-0.5">Absicherung von riskanten Aktionen durch manuelle Freigabe.</div>
+                    </button>
+                    
+                    <button onclick="loadExperiment('exp3')" class="text-left bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant p-1.5 rounded transition-all text-[10px] hover:border-secondary group">
+                        <div class="font-bold text-on-surface group-hover:text-secondary-fixed-dim flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[12px]" aria-hidden="true">security</span>
+                            3. Mathematischer Planer
+                        </div>
+                        <div class="text-[8px] text-on-surface-variant opacity-70 mt-0.5">Halluzinations-Schutz durch erzwungene PDDL-Randbedingungen.</div>
+                    </button>
+                    
+                    <button onclick="loadExperiment('exp4')" class="text-left bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant p-1.5 rounded transition-all text-[10px] hover:border-primary group">
+                        <div class="font-bold text-on-surface group-hover:text-primary flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[12px]" aria-hidden="true">inventory_2</span>
+                            4. RAG-Gedächtnis-Shield
+                        </div>
+                        <div class="text-[8px] text-on-surface-variant opacity-70 mt-0.5">Abwehr von Context-Drift (Ablenkung durch Rauschen) via RAG-Filter.</div>
+                    </button>
+                </div>
+            </div>
+        </details>
+
+        <!-- Mission Panel (Jetzt an zweiter Stelle) -->
         <details class="sidebar-section px-4 border-b border-outline-variant pb-3 mb-3" open>
             <summary class="cursor-pointer">
                 <div class="flex justify-between items-center w-full">
-                    <h2 class="text-[10px] font-label-caps text-primary uppercase font-bold tracking-wider">🎯 Missionen</h2>
+                    <h2 class="text-[10px] font-label-caps text-primary uppercase font-bold tracking-wider">🎯 2. Missionen</h2>
                     <span class="material-symbols-outlined expand-icon text-on-surface-variant text-[14px]" aria-hidden="true">expand_more</span>
                 </div>
             </summary>
@@ -440,75 +647,19 @@
                 </button>
             </div>
         </details>
-        
-        <!-- Graph Architecture Configurator -->
-        <details class="sidebar-section px-4" open>
-            <summary>
-                <div class="flex justify-between items-center w-full">
-                    <h2 class="text-label-caps font-label-caps text-primary">1. Graph-Architektur</h2>
-                    <div class="flex items-center gap-2">
-                        <div class="flex gap-1.5 mr-2">
-                            <button onclick="event.stopPropagation(); clearGraph()" class="text-[8px] font-label-caps text-error hover:underline" title="Deaktiviert alle optionalen Knoten">Leeren</button>
-                            <span class="text-outline-variant text-[8px]">|</span>
-                            <button onclick="event.stopPropagation(); resetGraph()" class="text-[8px] font-label-caps text-primary-container hover:underline" title="Standard-Knoten wiederherstellen">Standard</button>
-                        </div>
-                        <span class="material-symbols-outlined expand-icon text-on-surface-variant text-[14px]" aria-hidden="true">expand_more</span>
-                    </div>
-                </div>
-            </summary>
-            <div class="space-y-1.5 bg-surface-container-lowest border border-outline-variant p-2.5 mt-2">
-                <label class="flex items-center gap-2 text-[10px] text-on-surface-variant cursor-pointer select-none" title="Aktiviert die technische Format- und Integritätsprüfung">
-                    <input type="checkbox" id="chk-validator" checked onchange="toggleNode('validator')" class="accent-primary-container w-3.5 h-3.5"/>
-                    <span>Validator (Türsteher)</span>
-                </label>
-                <label class="flex items-center gap-2 text-[10px] text-on-surface-variant cursor-pointer select-none" title="Aktiviert die RAG-basierte speichergestützte Planung mit Erfahrungswerten">
-                    <input type="checkbox" id="chk-memory" checked onchange="toggleNode('memory')" class="accent-primary-container w-3.5 h-3.5"/>
-                    <span>RAG-Gedächtnis (Erfahrungs-Speicher)</span>
-                </label>
-                <label class="flex items-center gap-2 text-[10px] text-on-surface-variant cursor-pointer select-none" title="Aktiviert das KI-Modell zur Interpretation deines System-Prompts">
-                    <input type="checkbox" id="chk-orchestrator" checked onchange="toggleNode('orchestrator')" class="accent-primary-container w-3.5 h-3.5"/>
-                    <span>Orchestrator (KI-Gehirn)</span>
-                </label>
-                <label class="flex items-center gap-2 text-[10px] text-on-surface-variant cursor-pointer select-none" title="Aktiviert den symbolischen Planer (neuro-symbolisch) zur Verifikation von Plänen">
-                    <input type="checkbox" id="chk-planner" checked onchange="toggleNode('planner')" class="accent-primary-container w-3.5 h-3.5"/>
-                    <span>Externer Planer (neuro-symbolisch)</span>
-                </label>
-                <label class="flex items-center gap-2 text-[10px] text-on-surface-variant cursor-pointer select-none" title="Aktiviert den Action Router">
-                    <input type="checkbox" id="chk-router" checked onchange="toggleNode('router')" class="accent-primary-container w-3.5 h-3.5"/>
-                    <span>Action Router (Ausführung)</span>
-                </label>
-                <label class="flex items-center gap-2 text-[10px] text-on-surface-variant cursor-pointer select-none" title="Aktiviert das Sicherheitsnetz für menschliche Freigaben bei Gefahr">
-                    <input type="checkbox" id="chk-hitl" checked onchange="toggleNode('hitl')" class="accent-primary-container w-3.5 h-3.5"/>
-                    <span>Human-in-the-Loop</span>
-                </label>
-                <label class="flex items-center gap-2 text-[10px] text-on-surface-variant cursor-pointer select-none" title="Aktiviert die Protokollierung und Incident-Meldung für IT-Sicherheit">
-                    <input type="checkbox" id="chk-logger" checked onchange="toggleNode('logger')" class="accent-primary-container w-3.5 h-3.5"/>
-                    <span>Incident Logger</span>
-                </label>
-            </div>
-        </details>
 
-        <!-- Scenario Selector & Custom Input -->
-        <details class="sidebar-section px-4" open>
-            <summary>
+        <!-- Scenario Selector & Custom Input (Jetzt an dritter Stelle) -->
+        <details class="sidebar-section px-4 border-b border-outline-variant pb-3 mb-3" open>
+            <summary class="cursor-pointer">
                 <div class="flex justify-between items-center w-full">
-                    <h2 class="text-label-caps font-label-caps text-primary">2. Szenario & Daten-Input</h2>
+                    <h2 class="text-label-caps font-label-caps text-primary">3. Szenario & Daten-Input</h2>
                     <span class="material-symbols-outlined expand-icon text-on-surface-variant text-[14px]" aria-hidden="true">expand_more</span>
                 </div>
             </summary>
             <div class="mt-2">
-                <div id="scenario-selector" class="grid grid-cols-6 gap-1 mb-2">
+                <div id="scenario-selector" class="grid grid-cols-3 gap-1 mb-2">
                     <button onclick="selectScenario('email')" id="btn-email" class="scenario-btn active p-1 border border-outline-variant bg-surface-container-lowest text-on-surface-variant text-[8px] font-label-caps font-code-sm flex flex-col items-center justify-center h-10" title="E-Mail-Triage">
                         <span class="material-symbols-outlined text-[14px]" aria-hidden="true">mail</span>MAIL
-                    </button>
-                    <button onclick="selectScenario('document')" id="btn-document" class="scenario-btn p-1 border border-outline-variant bg-surface-container-lowest text-on-surface-variant text-[8px] font-label-caps font-code-sm flex flex-col items-center justify-center h-10" title="Dokumenten-Scanner">
-                        <span class="material-symbols-outlined text-[14px]" aria-hidden="true">description</span>DOC
-                    </button>
-                    <button onclick="selectScenario('ticket')" id="btn-ticket" class="scenario-btn p-1 border border-outline-variant bg-surface-container-lowest text-on-surface-variant text-[8px] font-label-caps font-code-sm flex flex-col items-center justify-center h-10" title="IT-Ticket-Bearbeitung">
-                        <span class="material-symbols-outlined text-[14px]" aria-hidden="true">confirmation_number</span>TKT
-                    </button>
-                    <button onclick="selectScenario('budget')" id="btn-budget" class="scenario-btn p-1 border border-outline-variant bg-surface-container-lowest text-on-surface-variant text-[8px] font-label-caps font-code-sm flex flex-col items-center justify-center h-10" title="Budget-Prüfung">
-                        <span class="material-symbols-outlined text-[14px]" aria-hidden="true">payments</span>BGT
                     </button>
                     <button onclick="selectScenario('meeting')" id="btn-meeting" class="scenario-btn p-1 border border-outline-variant bg-surface-container-lowest text-on-surface-variant text-[8px] font-label-caps font-code-sm flex flex-col items-center justify-center h-10" title="Kalender-Meeting">
                         <span class="material-symbols-outlined text-[14px]" aria-hidden="true">event</span>MTG
@@ -516,6 +667,10 @@
                     <button onclick="selectScenario('procurement')" id="btn-procurement" class="scenario-btn p-1 border border-outline-variant bg-surface-container-lowest text-on-surface-variant text-[8px] font-label-caps font-code-sm flex flex-col items-center justify-center h-10" title="KI-Einkaufsagent">
                         <span class="material-symbols-outlined text-[14px]" aria-hidden="true">shopping_cart</span>BUY
                     </button>
+                    <!-- Versteckte Buttons für erweiterte Szenarien, um JS-Kompatibilität zu wahren -->
+                    <button onclick="selectScenario('document')" id="btn-document" class="scenario-btn hidden" style="display:none;"></button>
+                    <button onclick="selectScenario('ticket')" id="btn-ticket" class="scenario-btn hidden" style="display:none;"></button>
+                    <button onclick="selectScenario('budget')" id="btn-budget" class="scenario-btn hidden" style="display:none;"></button>
                 </div>
                 
                 <div class="mt-2 space-y-1">
@@ -532,37 +687,9 @@
             </div>
         </details>
 
-        <!-- Agent Tools & Permissions -->
-        <details class="sidebar-section px-4" open id="permissions-block">
-            <summary>
-                <div class="flex justify-between items-center w-full">
-                    <h2 class="text-label-caps font-label-caps text-primary">3. Agenten-Berechtigungen</h2>
-                    <span class="material-symbols-outlined expand-icon text-on-surface-variant text-[14px]" aria-hidden="true">expand_more</span>
-                </div>
-            </summary>
-            <div class="space-y-1.5 bg-surface-container-lowest border border-outline-variant p-2.5 mt-2">
-                <label class="flex items-center gap-2 text-[10px] text-on-surface-variant/50 cursor-not-allowed select-none" title="Der Agent muss Eingangsdaten lesen können">
-                    <input type="checkbox" checked disabled class="accent-primary-container w-3.5 h-3.5 opacity-50"/>
-                    <span>Leserechte (Datenstrom)</span>
-                </label>
-                <label class="flex items-center gap-2 text-[10px] text-on-surface-variant cursor-pointer select-none" title="Erlaubt dem Agenten, Dateien im System zu schreiben oder zu ändern">
-                    <input type="checkbox" id="perm-write" checked class="accent-primary-container w-3.5 h-3.5"/>
-                    <span>Schreibrechte (System)</span>
-                </label>
-                <label class="flex items-center gap-2 text-[10px] text-on-surface-variant cursor-pointer select-none" title="Erlaubt externe HTTP-API-Aufrufe">
-                    <input type="checkbox" id="perm-network" checked class="accent-primary-container w-3.5 h-3.5"/>
-                    <span>Externe API-Aufrufe (Netzwerk)</span>
-                </label>
-                <label class="flex items-center gap-2 text-[10px] text-on-surface-variant cursor-pointer select-none" title="Erlaubt das Freigeben von Geldbeträgen oder Finanztransaktionen">
-                    <input type="checkbox" id="perm-finance" checked class="accent-primary-container w-3.5 h-3.5"/>
-                    <span>Finanztransaktionen freigeben</span>
-                </label>
-            </div>
-        </details>
-
-        <!-- Prompt Engineering -->
+        <!-- Prompt Engineering (Jetzt an vierter Stelle) -->
         <details class="sidebar-section px-4" open>
-            <summary>
+            <summary class="cursor-pointer">
                 <div class="flex justify-between items-center w-full">
                     <h2 class="text-label-caps font-label-caps text-primary">4. Prompt Engineering</h2>
                     <button onclick="event.stopPropagation(); loadExamplePrompt()" class="text-[9px] font-label-caps text-primary-container hover:underline flex items-center gap-0.5" title="Lädt einen vorgefertigten Prompt für das aktive Szenario">
@@ -576,82 +703,6 @@
                     Instruiere das LLM, wie es auf <strong class="text-error">Risiken</strong> reagieren soll.
                 </p>
                 <textarea id="systemPrompt" class="w-full h-20 bg-surface-container-lowest border border-outline-variant text-primary font-code-sm text-[11px] p-2 focus:ring-1 focus:ring-primary-container focus:outline-none resize-none scrollbar-custom" placeholder="z.B. Wenn eine E-Mail verdächtige Links enthält, blockiere die Zustellung und melde den Vorfall an die IT-Sicherheit..."></textarea>
-            </div>
-        </details>
-
-        <!-- Modell-Parameter -->
-        <details class="sidebar-section px-4" id="params-section">
-            <summary>
-                <div class="flex justify-between items-center w-full">
-                    <h2 class="text-label-caps font-label-caps text-primary flex items-center gap-1.5">
-                        <span>5. Modell-Parameter</span>
-                    </h2>
-                    <span class="material-symbols-outlined expand-icon text-on-surface-variant text-[14px]" aria-hidden="true">expand_more</span>
-                </div>
-            </summary>
-            <div class="space-y-2 mt-2">
-                <div class="space-y-1">
-                    <div class="flex justify-between items-center">
-                        <label class="text-[10px] font-label-caps text-on-surface-variant uppercase flex items-center gap-1">
-                            <span>Temperatur (LLM)</span>
-                            <span id="tempRiskBadge" class="text-[8px] font-bold text-secondary-container px-1.5 py-0.5 rounded bg-secondary-container/10">STABIL</span>
-                        </label>
-                    </div>
-                    <input id="tempInput" oninput="updateParams()" class="w-full accent-primary-container bg-surface-container-high h-1 appearance-none cursor-pointer" type="range" min="0" max="200" value="20"/>
-                    <div class="flex justify-between text-[9px] font-code-sm text-secondary-container">
-                        <span>0.0 (Präzise)</span>
-                        <span class="text-primary-container font-bold" id="tempValue">0.2</span>
-                        <span>1.0 (Standard)</span>
-                        <span>2.0 (Drift-Risiko)</span>
-                    </div>
-                </div>
-            </div>
-        </details>
-
-        <!-- Didaktisches Labor -->
-        <details class="sidebar-section px-4" id="experiments-section" open>
-            <summary>
-                <div class="flex justify-between items-center w-full">
-                    <h2 class="text-label-caps font-label-caps text-primary flex items-center gap-1.5">
-                        <span>6. Didaktisches Labor</span>
-                    </h2>
-                    <span class="material-symbols-outlined expand-icon text-on-surface-variant text-[14px]" aria-hidden="true">expand_more</span>
-                </div>
-            </summary>
-            <div class="space-y-2 mt-2">
-                <p class="text-[10px] text-on-surface-variant leading-relaxed">
-                    Wähle ein geführtes Sicherheits-Szenario, um den Einfluss der Graph-Struktur zu erleben:
-                </p>
-                <div class="grid grid-cols-1 gap-1.5">
-                    <button onclick="loadExperiment('exp1')" class="text-left bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant p-1.5 rounded transition-all text-[10px] hover:border-error group">
-                        <div class="font-bold text-on-surface group-hover:text-error flex items-center gap-1">
-                            <span class="material-symbols-outlined text-[12px]" aria-hidden="true">running_with_errors</span>
-                            1. Ungeschützte KI (Crash)
-                        </div>
-                        <div class="text-[8px] text-on-surface-variant opacity-70 mt-0.5">Wie LLM-Drift bei hoher Temperatur direkt zum Systemsturz führt.</div>
-                    </button>
-                    <button onclick="loadExperiment('exp2')" class="text-left bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant p-1.5 rounded transition-all text-[10px] hover:border-tertiary group">
-                        <div class="font-bold text-on-surface group-hover:text-tertiary flex items-center gap-1">
-                            <span class="material-symbols-outlined text-[12px]" aria-hidden="true">record_voice_over</span>
-                            2. Human-in-the-Loop
-                        </div>
-                        <div class="text-[8px] text-on-surface-variant opacity-70 mt-0.5">Absicherung von riskanten Büro-Aktionen durch manuelle Freigabe.</div>
-                    </button>
-                    <button onclick="loadExperiment('exp3')" class="text-left bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant p-1.5 rounded transition-all text-[10px] hover:border-secondary group">
-                        <div class="font-bold text-on-surface group-hover:text-secondary-fixed-dim flex items-center gap-1">
-                            <span class="material-symbols-outlined text-[12px]" aria-hidden="true">security</span>
-                            3. Mathematischer Planer
-                        </div>
-                        <div class="text-[8px] text-on-surface-variant opacity-70 mt-0.5">Halluzinations-Schutz durch formal erzwungene PDDL-Randbedingungen.</div>
-                    </button>
-                    <button onclick="loadExperiment('exp4')" class="text-left bg-surface-container/60 hover:bg-surface-container-high border border-outline-variant p-1.5 rounded transition-all text-[10px] hover:border-primary group">
-                        <div class="font-bold text-on-surface group-hover:text-primary flex items-center gap-1">
-                            <span class="material-symbols-outlined text-[12px]" aria-hidden="true">inventory_2</span>
-                            4. RAG-Gedächtnis-Shield
-                        </div>
-                        <div class="text-[8px] text-on-surface-variant opacity-70 mt-0.5">Abwehr von Context-Drift (Ablenkung durch Rauschen) via RAG-Filter.</div>
-                    </button>
-                </div>
             </div>
         </details>
 
@@ -861,53 +912,61 @@
     </main>
 
     <!-- ─── RIGHT SIDEBAR ─── -->
-    <aside class="w-80 bg-surface-container-lowest border-l border-outline-variant flex flex-col shrink-0">
-        <div class="p-4 border-b border-outline-variant">
-            <h2 class="text-label-caps font-label-caps text-primary">State Inspector (Memory)</h2>
-        </div>
-        <div class="flex-1 overflow-y-auto p-4 pb-16 scrollbar-custom bg-[#080808]">
-            <pre id="jsonViewer" class="font-code-sm text-code-sm text-secondary-container leading-relaxed whitespace-pre-wrap">{ ... }</pre>
+    <aside id="sidebar-right" class="w-80 bg-surface-container-lowest border-l border-outline-variant flex flex-col shrink-0 transition-all duration-300 ease-in-out relative">
+        <!-- Toggle Button -->
+        <button id="btn-toggle-right-sidebar" onclick="toggleRightSidebar()" class="absolute left-[-20px] top-1/2 -translate-y-1/2 w-5 h-16 bg-surface-container-high hover:bg-primary border border-r-0 border-outline-variant rounded-l flex items-center justify-center cursor-pointer transition-colors z-30" title="Menü ein-/ausklappen">
+            <span id="right-sidebar-toggle-icon" class="material-symbols-outlined text-[14px] text-on-surface-variant hover:text-white">chevron_right</span>
+        </button>
 
-            <div class="mt-4">
-                <h3 class="text-label-caps font-label-caps text-on-surface-variant mb-1.5 uppercase text-[10px]">LLM-Reasoning</h3>
-                <div id="reasoningBox" class="p-2 bg-surface-container-low border border-outline-variant font-code-sm text-[10px] text-on-surface-variant h-20 overflow-y-auto scrollbar-custom" aria-live=\"polite\">
-                    Klicken Sie auf "Execute Lab", um die KI-Argumentationskette zu sehen.
-                </div>
+        <!-- Sidebar Content Container -->
+        <div class="sidebar-right-content flex-1 flex flex-col overflow-hidden">
+            <div class="p-4 border-b border-outline-variant shrink-0">
+                <h2 class="text-label-caps font-label-caps text-primary">State Inspector (Memory)</h2>
             </div>
+            <div class="flex-1 overflow-y-auto p-4 pb-16 scrollbar-custom bg-[#080808]">
+                <pre id="jsonViewer" class="font-code-sm text-code-sm text-secondary-container leading-relaxed whitespace-pre-wrap">{ ... }</pre>
 
-            
-            <!-- Agent Output Terminal -->
-            <div class="mt-4 mb-4">
-                <h3 class="text-label-caps font-label-caps text-on-surface-variant mb-1.5 uppercase text-[10px] flex items-center gap-1">
-                    <span class="material-symbols-outlined text-[12px] text-primary">terminal</span> Agent Execution Output
-                </h3>
-                <div id="agentOutputBox" class="p-2 bg-[#000] border border-outline-variant font-code-sm text-[10px] text-primary h-24 overflow-y-auto scrollbar-custom whitespace-pre-wrap">Wartet auf Router-Freigabe...</div>
-            </div>
-            
-            <!-- Score Card -->
-            <div id="scoreCard" class="mt-4 hidden">
-                <h3 class="text-label-caps font-label-caps text-on-surface-variant mb-2 uppercase text-[10px]">Prompt-Bewertung</h3>
-                <div class="flex items-start gap-3 mb-3">
-                    <svg width="70" height="70" viewBox="0 0 70 70" class="shrink-0">
-                        <circle cx="35" cy="35" r="30" fill="none" stroke="#444933" stroke-width="4"/>
-                        <circle id="scoreRing" cx="35" cy="35" r="30" fill="none" stroke="#c3f400" stroke-width="4" stroke-dasharray="188.5" stroke-dashoffset="188.5" stroke-linecap="square" transform="rotate(-90 35 35)" style="transition:stroke-dashoffset 1.5s ease-out,stroke .4s"/>
-                        <text id="scoreText" x="35" y="40" text-anchor="middle" fill="#fff" font-size="16" font-family="JetBrains Mono" font-weight="700">0</text>
-                    </svg>
-                    <div id="scoreCriteria" class="space-y-0.5 text-[9px] font-code-sm"></div>
+                <div class="mt-4">
+                    <h3 class="text-label-caps font-label-caps text-on-surface-variant mb-1.5 uppercase text-[10px]">LLM-Reasoning</h3>
+                    <div id="reasoningBox" class="p-2 bg-surface-container-low border border-outline-variant font-code-sm text-[10px] text-on-surface-variant h-20 overflow-y-auto scrollbar-custom" aria-live="polite">
+                        Klicken Sie auf "Execute Lab", um die KI-Argumentationskette zu sehen.
+                    </div>
                 </div>
-                <div id="scoreTips" class="p-2 bg-surface-container-low border border-outline-variant text-[9px] font-code-sm text-on-surface-variant mb-2"></div>
-                <div id="simulation-drift-feedback" class="mb-3 hidden"></div>
+
                 
-                <!-- Praxis Transfer Box -->
-                <div id="praxisTransfer" class="mt-3 p-3 bg-surface-container-high border border-outline-variant text-[10px] font-code-sm hidden"></div>
+                <!-- Agent Output Terminal -->
+                <div class="mt-4 mb-4">
+                    <h3 class="text-label-caps font-label-caps text-on-surface-variant mb-1.5 uppercase text-[10px] flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[12px] text-primary">terminal</span> Agent Execution Output
+                    </h3>
+                    <div id="agentOutputBox" class="p-2 bg-[#000] border border-outline-variant font-code-sm text-[10px] text-primary h-24 overflow-y-auto scrollbar-custom whitespace-pre-wrap">Wartet auf Router-Freigabe...</div>
+                </div>
                 
-                <!-- Vergleich Button -->
-                <button onclick="showComparison()" class="w-full mt-3 bg-surface-container-high border border-outline-variant py-2 text-on-surface hover:text-primary transition-colors text-[10px] font-label-caps uppercase font-bold tracking-widest cursor-pointer">🔬 Vergleich: mit vs. ohne Schutz</button>
-                
-                <!-- Leaderboard -->
-                <div class="mt-3">
-                    <h4 class="text-[9px] font-label-caps text-on-surface-variant mb-1 uppercase">Bestenliste</h4>
-                    <div id="leaderboard" class="space-y-0.5 text-[9px] font-code-sm text-on-surface-variant"></div>
+                <!-- Score Card -->
+                <div id="scoreCard" class="mt-4 hidden">
+                    <h3 class="text-label-caps font-label-caps text-on-surface-variant mb-2 uppercase text-[10px]">Prompt-Bewertung</h3>
+                    <div class="flex items-start gap-3 mb-3">
+                        <svg width="70" height="70" viewBox="0 0 70 70" class="shrink-0">
+                            <circle cx="35" cy="35" r="30" fill="none" stroke="#444933" stroke-width="4"/>
+                            <circle id="scoreRing" cx="35" cy="35" r="30" fill="none" stroke="#c3f400" stroke-width="4" stroke-dasharray="188.5" stroke-dashoffset="188.5" stroke-linecap="square" transform="rotate(-90 35 35)" style="transition:stroke-dashoffset 1.5s ease-out,stroke .4s"/>
+                            <text id="scoreText" x="35" y="40" text-anchor="middle" fill="#fff" font-size="16" font-family="JetBrains Mono" font-weight="700">0</text>
+                        </svg>
+                        <div id="scoreCriteria" class="space-y-0.5 text-[9px] font-code-sm"></div>
+                    </div>
+                    <div id="scoreTips" class="p-2 bg-surface-container-low border border-outline-variant text-[9px] font-code-sm text-on-surface-variant mb-2"></div>
+                    <div id="simulation-drift-feedback" class="mb-3 hidden"></div>
+                    
+                    <!-- Praxis Transfer Box -->
+                    <div id="praxisTransfer" class="mt-3 p-3 bg-surface-container-high border border-outline-variant text-[10px] font-code-sm hidden"></div>
+                    
+                    <!-- Vergleich Button -->
+                    <button onclick="showComparison()" class="w-full mt-3 bg-surface-container-high border border-outline-variant py-2 text-on-surface hover:text-primary transition-colors text-[10px] font-label-caps uppercase font-bold tracking-widest cursor-pointer">🔬 Vergleich: mit vs. ohne Schutz</button>
+                    
+                    <!-- Leaderboard -->
+                    <div class="mt-3">
+                        <h4 class="text-[9px] font-label-caps text-on-surface-variant mb-1 uppercase">Bestenliste</h4>
+                        <div id="leaderboard" class="space-y-0.5 text-[9px] font-code-sm text-on-surface-variant"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1545,7 +1604,10 @@ function selectScenario(key) {
   if (S.isRunning) return;
   S.scenario = key;
   document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
-  $('btn-'+key).classList.add('active');
+  const btn = $('btn-'+key);
+  if (btn) btn.classList.add('active');
+  const dropdown = $('setting-scenario');
+  if (dropdown) dropdown.value = key;
   setToPreset(S.severity);
   updateDidacticTip();
   updateInputNode();
@@ -2389,6 +2451,17 @@ function toggleLanguage() {
   for (const [key, titles] of Object.entries(nodeTitles)) {
     const el = document.getElementById("title-" + key);
     if (el) el.innerText = isEinfach ? titles.einfach : titles.fach;
+  }
+}
+function toggleRightSidebar() {
+  const sb = document.getElementById('sidebar-right');
+  const icon = document.getElementById('right-sidebar-toggle-icon');
+  if (sb) {
+    sb.classList.toggle('collapsed');
+    const isCollapsed = sb.classList.contains('collapsed');
+    if (icon) {
+      icon.innerText = isCollapsed ? 'chevron_left' : 'chevron_right';
+    }
   }
 }
 // Init language on load
@@ -3346,12 +3419,52 @@ function loadExperiment(expId) {
     updateInputNode();
     loadExamplePrompt();
     showTutorialSpotlight('#executeBtn', 'Experiment 4: Gedächtnis-Shield', 'Das RAG-Speicher-Modul ist aktiv und wir haben eine lange E-Mail mit viel Rauschen geladen. Klicke auf <strong>&quot;Execute Lab&quot;</strong>. Der RAG-Speicher filtert das Rauschen, verhindert Context-Drift und schützt das System.', 'bottom', true);
+  } else if (expId === 'exp5') {
+    // Autonome Einkaufs-Entscheidung (BUY)
+    selectScenario('procurement');
+    S.activeNodes = { input:true, validator:false, memory:false, orchestrator:true, planner:false, router:true, hitl:false, logger:false };
+    S.temp = 0.2;
+    S.severity = 'safe';
+    setToPreset('safe');
+    $('customInputText').value = "Bestellung: 5 Tonnen Aluminium-Rohre, Liefertermin: nächste Woche, Budget: max. 25.000 EUR";
+    updateInputNode();
+    $('systemPrompt').value = "Du bist ein Einkaufsagent. Suche in der Lieferanten-Datenbank nach Angeboten für Aluminium-Rohre. Vergleiche die Preise und Lieferzeiten, berechne das beste Angebot und bestelle es.";
+    showTutorialSpotlight('#executeBtn', 'Experiment 5: Autonomer Einkauf', 'Der Agent vergleicht autonom Angebote in der Lieferantendatenbank und führt die Bestellung aus. Klicke auf <strong>&quot;Execute Lab&quot;</strong>.', 'bottom', true);
+  } else if (expId === 'exp6') {
+    // Terminkonflikt-Lösung (MTG)
+    selectScenario('meeting');
+    S.activeNodes = { input:true, validator:false, memory:false, orchestrator:true, planner:false, router:true, hitl:false, logger:false };
+    S.temp = 0.2;
+    S.severity = 'safe';
+    setToPreset('safe');
+    $('customInputText').value = "Meeting buchen: Projektbesprechung am Dienstag um 14:00";
+    updateInputNode();
+    $('systemPrompt').value = "Du bist ein Kalenderagent. Buche das Meeting, es sei denn, es gibt einen Terminkonflikt mit dem Vorstand. Prüfe die Datenbank.";
+    showTutorialSpotlight('#executeBtn', 'Experiment 6: Termin-Buchung', 'Der Agent prüft Terminkonflikte in der Kalenderdatenbank und bucht das Meeting autonom. Klicke auf <strong>&quot;Execute Lab&quot;</strong>.', 'bottom', true);
+  } else if (expId === 'exp7') {
+    // E-Mail Triage & Entwurf (MAIL)
+    selectScenario('email');
+    S.activeNodes = { input:true, validator:false, memory:false, orchestrator:true, planner:false, router:true, hitl:false, logger:false };
+    S.temp = 0.2;
+    S.severity = 'safe';
+    setToPreset('safe');
+    $('customInputText').value = "Anfrage von Kunde Müller: Wann wird meine Lieferung geliefert?";
+    updateInputNode();
+    $('systemPrompt').value = "Du bist ein E-Mail-Agent. Lies die E-Mail und erstelle eine passende, höfliche Antwort-Vorlage.";
+    showTutorialSpotlight('#executeBtn', 'Experiment 7: E-Mail-Entwurf', 'Der Agent liest eine Kundenanfrage und verfasst einen automatischen Antwortentwurf. Klicke auf <strong>&quot;Execute Lab&quot;</strong>.', 'bottom', true);
   }
 
   // Update checkboxes in sidebar
   for (const [id, val] of Object.entries(S.activeNodes)) {
     const chk = $('chk-' + id);
     if (chk) chk.checked = val;
+  }
+  // Sync system prompt state
+  $('systemPrompt').disabled = !S.activeNodes.orchestrator;
+  if (!S.activeNodes.orchestrator) {
+    $('systemPrompt').placeholder = 'KI-Gehirn deaktiviert. Daten fließen ungeprüft.';
+  } else {
+    $('systemPrompt').placeholder = 'z.B. Wenn eine E-Mail verdächtige Links enthält...';
   }
   // Update temp slider
   $('tempInput').value = Math.round(S.temp * 100);
